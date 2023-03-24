@@ -1,0 +1,10 @@
+flight_number,source_location,destination_location,departure_hour,departure_min,airfare,max_cnt,current_cnt
+2532,Singapore,Tokyo,10,15,300,300,0
+3523,Singapore,Tokyo,11,15,350,250,0
+1523,Singapore,Tokyo,12,15,350,276,0
+2533,Singapore,Tokyo,13,15,500,220,0
+2444,Tokyo,Singapore,14,10,300,210,0
+2343,Tokyo,Singapore,15,10,250,290,0
+2512,Tokyo,Singapore,16,10,340,295,0
+2511,Tokyo,Singapore,0,10,200,280,0
+1343,Tokyo,Singapore,1,30,230,270,0

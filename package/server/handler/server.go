@@ -2,70 +2,27 @@ package handler
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
-	"net/http"
+	"net"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
-func HandleWebSocketAtLeastOnce(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+func HandleUDPRequest() {
+	// Listen for incoming packets on port 8080
+	conn, err := net.ListenPacket("udp", ":8080")
 	if err != nil {
-		fmt.Println("Failed to upgrade connection:", err)
-		return
+		panic(err)
 	}
 	defer conn.Close()
 
+	fmt.Println("Server listening on", conn.LocalAddr())
+
+	// Loop to continuously receive incoming packets
 	for {
-		// Read message from client
-		_, message, err := conn.ReadMessage()
+		buffer := make([]byte, 1024)
+		n, addr, err := conn.ReadFrom(buffer)
 		if err != nil {
-			fmt.Println("Failed to read message:", err)
-			break
+			fmt.Println("Error:", err)
+			continue
 		}
-
-		// Print message received
-		fmt.Println("Received message:", string(message))
-
-		// Send response back to client
-		err = conn.WriteMessage(websocket.TextMessage, []byte("Hello, client!"))
-		if err != nil {
-			fmt.Println("Failed to write message:", err)
-			break
-		}
-	}
-}
-
-func HandleWebSocketAtMostOnce(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Failed to upgrade connection:", err)
-		return
-	}
-	defer conn.Close()
-
-	for {
-		// Read message from client
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			fmt.Println("Failed to read message:", err)
-			break
-		}
-
-		// Print message received
-		fmt.Println("Received message:", string(message))
-
-		// Send response back to client
-		err = conn.WriteMessage(websocket.TextMessage, []byte("Hello, client!"))
-		if err != nil {
-			fmt.Println("Failed to write message:", err)
-			break
-		}
+		fmt.Printf("Received %d bytes from %s: %s\n", n, addr.String(), string(buffer[:n]))
 	}
 }

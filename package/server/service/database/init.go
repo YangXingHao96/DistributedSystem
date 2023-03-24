@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"fmt"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"os"
 	"strconv"
 )
@@ -55,12 +55,25 @@ func Init() {
 	}
 }
 
+func isTableExistsError(err error) bool {
+	pqError, ok := err.(*pq.Error)
+	if !ok {
+		return false
+	}
+	return pqError.Code.Name() == "duplicate_table"
+}
+
 func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    departure_hour INTEGER,\n    departure_min INTEGER,\n    air_fare FLOAT,\n    max_cnt INTEGER,\n    current_cnt INTEGER)"
 	fmt.Printf("Executing creations: %s\n", createTable)
 	_, err := db.Exec(createTable)
 	if err != nil {
-		return err
+		if isTableExistsError(err) {
+			// Handle error if table already exists
+			fmt.Printf("table flight already exists")
+		} else {
+			return err
+		}
 	}
 
 	for _, flight := range flightSlice {

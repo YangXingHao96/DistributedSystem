@@ -11,5 +11,6 @@ type FlightInformation struct {
 	CurrentCnt    int
 }
 
-type QueryFlightRequest struct {
-}
+//type QueryFlightRequest struct {
+//	MessageType
+//}

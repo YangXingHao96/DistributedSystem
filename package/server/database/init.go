@@ -12,7 +12,7 @@ import (
 
 var DbConnection *sql.DB
 
-func Init() {
+func Init() *sql.DB {
 	const (
 		host     = "localhost"
 		port     = 5432
@@ -49,10 +49,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Successfully connected to PostgreSQL database!")
-	if err != nil {
-		panic(err)
-	}
+	return DbConnection
 }
 
 func isTableExistsError(err error) bool {
@@ -78,7 +75,6 @@ func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 
 	for _, flight := range flightSlice {
 		insertFlight := "INSERT INTO Flight (flight_number, source, destination, departure_hour, departure_min, air_fare, max_cnt, current_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
-		fmt.Printf("Executing insert: %s\n", insertFlight)
 		_, err := db.Exec(insertFlight, flight.FlightNo, flight.Source, flight.Destination, flight.DepartureHour, flight.DepartureMin, flight.AirFare, flight.MaxCnt, flight.CurrentCnt)
 		if err != nil {
 			pqErr, ok := err.(*pq.Error)

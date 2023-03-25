@@ -41,7 +41,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	flightSlice, err := prep_table_data(wd + "/init_flight.csv")
+	flightSlice, err := prepTableData(wd + "/init_flight.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -81,13 +81,23 @@ func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 		fmt.Printf("Executing insert: %s\n", insertFlight)
 		_, err := db.Exec(insertFlight, flight.FlightNo, flight.Source, flight.Destination, flight.DepartureHour, flight.DepartureMin, flight.AirFare, flight.MaxCnt, flight.CurrentCnt)
 		if err != nil {
-			return err
+			pqErr, ok := err.(*pq.Error)
+			if !ok {
+				// The error is not a pq.Error, handle it as appropriate
+				return err
+			}
+			// Check for unique key violation error
+			if pqErr.Code == "23505" {
+				fmt.Printf("unique key violation: %s", pqErr.Message)
+			} else {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
-func prep_table_data(filePath string) ([]*model.FlightInformation, error) {
+func prepTableData(filePath string) ([]*model.FlightInformation, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, err

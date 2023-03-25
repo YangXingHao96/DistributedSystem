@@ -1,8 +1,8 @@
 package main
 
 import (
-	"DistributedSystem/package/server/database"
-	"DistributedSystem/package/server/handler"
+	"github.com/YangXingHao96/DistributedSystem/package/server/database"
+	"github.com/YangXingHao96/DistributedSystem/package/server/handler"
 )
 
 func main() {

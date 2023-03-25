@@ -1,10 +1,10 @@
 package database
 
 import (
-	"DistributedSystem/package/server/model"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
+	"github.com/YangXingHao96/DistributedSystem/package/server/model"
 	"github.com/lib/pq"
 	"os"
 	"strconv"

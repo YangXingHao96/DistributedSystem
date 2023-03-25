@@ -1,10 +1,10 @@
 package database
 
 import (
-	"DistributedSystem/package/common/model"
-	dbModel "DistributedSystem/package/server/model"
 	"database/sql"
 	"errors"
+	"github.com/YangXingHao96/DistributedSystem/package/common/model"
+	dbModel "github.com/YangXingHao96/DistributedSystem/package/server/model"
 )
 
 func GetFlights(db *sql.DB, source, destination string) ([]int, error) {

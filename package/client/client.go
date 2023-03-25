@@ -39,11 +39,11 @@ type UdpConn struct {
 	x net.Conn
 }
 
-// Apply read deadline for timeouts
 func (u *UdpConn) Write(b []byte) (n int, err error) {
 	return u.x.Write(b)
 }
 
+// Apply read deadline for timeouts
 func (u *UdpConn) Read(b []byte) (int, error) {
 	if err := u.x.SetReadDeadline(time.Now().Add(time.Duration(ReadTimeoutMs) * time.Millisecond)); err != nil {
 		return 0, ErrFailedToSetReadDeadline

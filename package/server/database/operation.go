@@ -51,13 +51,9 @@ func GetFlightDetail(db *sql.DB, flightNo int) (*model.FlightDetail, error) {
 			return nil, err
 		}
 		flightDetail.FlightNo = flightInfo.FlightNo
-		flightDetail.DepartureHour = flightInfo.DepartureHour
-		flightDetail.DepartureMinute = flightInfo.DepartureMin
+		flightDetail.Source = flightInfo.Source
+		flightDetail.Destination = flightInfo.Destination
 		flightDetail.SeatAvailability = flightInfo.MaxCnt - flightInfo.CurrentCnt
-	}
-
-	if flightDetail.FlightNo == 0 {
-		return nil, errors.New("flight number does not exist")
 	}
 	return &flightDetail, nil
 }

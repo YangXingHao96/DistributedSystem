@@ -45,6 +45,16 @@ func validateQueryFlightsRequest(req map[string]interface{}) error {
 }
 
 func validateQueryFlightDetailsRequest(req map[string]interface{}) error {
+	err := validateMessageId(req)
+	if err != nil {
+		return err
+	}
+	if _, ok := req[constant.FlightNo]; !ok {
+		return errors.New("request query flight details flight number cannot be empty")
+	}
+	if reflect.TypeOf(req[constant.FlightNo]).Kind() != reflect.Int {
+		return errors.New("request query flights details flight number not of type int")
+	}
 	return nil
 }
 

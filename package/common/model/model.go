@@ -1,10 +1,10 @@
 package model
 
 type FlightDetail struct {
-	FlightNo         int `json:"flightNo"`
-	DepartureHour    int `json:"departureHour"`
-	DepartureMinute  int `json:"departureMinute"`
-	SeatAvailability int `json:"seatAvailability"`
+	FlightNo         int    `json:"flightNo"`
+	Source           string `json:"source"`
+	Destination      string `json:"destination"`
+	SeatAvailability int    `json:"seatAvailability"`
 }
 
 type CommonRequest struct {

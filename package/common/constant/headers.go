@@ -1,11 +1,16 @@
 package constant
 
 const (
-	QueryFlights = iota
-	QueryFlightDetail
-	AddFlight
-	MakeReservation
-	CancelReservation
+	QueryFlightsReq = iota
+	QueryFlightsResp
+	QueryFlightDetailReq
+	QueryFlightDetailResp
+	AddFlightReq
+	AddFlightResp
+	MakeReservationReq
+	MakeReservationResp
+	CancelReservationReq
+	CancelReservationResp
 )
 
 const (

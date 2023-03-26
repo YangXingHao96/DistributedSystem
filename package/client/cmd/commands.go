@@ -309,3 +309,33 @@ func promptCancelReservation() ([]byte, error) {
 	data := common.NewSerializeCancelReservationReq(shortuuid.New(), x, seatCnt)
 	return data, nil
 }
+
+func promptGetReservationForFlight() ([]byte, error) {
+	prompt := promptui.Prompt{
+		Label:    "Flight ID",
+		Validate: func(input string) error {
+			_, err := strconv.ParseInt(input, 10, 32)
+			if err != nil {
+				return errors.New("invalid number")
+			}
+			return nil
+		},
+	}
+	flightId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	x, err := strconv.Atoi(flightId)
+	if err != nil {
+		return nil, err
+	}
+
+	data := common.NewSerializeGetReservationForFlightReq(shortuuid.New(), x)
+	return data, nil
+}
+
+func fmtGetReservationForFlight(resp map[string]interface{}) string {
+	flightNo := resp[constant.FlightNo].(string)
+	seatCnt := resp[constant.SeatCnt].(int)
+	return fmt.Sprintf("Flight ID: %s\nSeats reserved: %d", flightNo, seatCnt)
+}

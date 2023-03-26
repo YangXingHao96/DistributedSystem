@@ -39,6 +39,10 @@ var supportedCmds = map[string]cmdsPromptFormat{
 		Prompt: promptCancelReservation,
 		Fmt: fmtSimpleAck,
 	},
+	"Check your reservation for a flight": {
+		Prompt: promptGetReservationForFlight,
+		Fmt: fmtGetReservationForFlight,
+	},
 }
 
 

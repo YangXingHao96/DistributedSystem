@@ -11,6 +11,12 @@ const (
 	MakeReservationResp
 	CancelReservationReq
 	CancelReservationResp
+	GetReservationForFlightReq
+	GetReservationForFlightResp
+	RegisterForMonitor
+	MonitorUpdateResp
+	MonitorBackoffResp
+	GeneralErrResp
 )
 
 const (

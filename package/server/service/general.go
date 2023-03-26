@@ -16,6 +16,20 @@ var serviceMap = map[int]func(map[string]interface{}, *sql.DB) ([]byte, error){
 	constant.CancelReservationReq: CancelReservation,
 }
 
+func HandleDuplicateRequest(req map[string]interface{}, msgMap map[string]struct{}) error {
+	fmt.Printf("Processing incoming request: %v\n", req)
+	err := utils.ValidateMessageId(req)
+	if err != nil {
+		return err
+	}
+	msgId := fmt.Sprintf("%v", req[constant.MessageId])
+	if _, ok := msgMap[msgId]; ok {
+		return errors.New("duplicated message id, request will not be process")
+	}
+	msgMap[msgId] = struct{}{}
+	return nil
+}
+
 func HandleIncomingRequest(req map[string]interface{}, db *sql.DB) ([]byte, error) {
 	fmt.Printf("Processing incoming request: %v\n", req)
 	if _, ok := req[constant.MsgType]; !ok {

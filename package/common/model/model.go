@@ -5,6 +5,8 @@ type FlightDetail struct {
 	Source           string `json:"source"`
 	Destination      string `json:"destination"`
 	SeatAvailability int    `json:"seatAvailability"`
+	TotalSeats       int    `json:"totalSeats"`
+	CurrentSeats     int    `json:"currentSeats"`
 }
 
 type CommonRequest struct {

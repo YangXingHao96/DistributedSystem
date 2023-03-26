@@ -14,7 +14,7 @@ var Validators = map[int]func(map[string]interface{}) error{
 	constant.CancelReservationReq: validateCancelReservationRequest,
 }
 
-func validateMessageId(req map[string]interface{}) error {
+func ValidateMessageId(req map[string]interface{}) error {
 	if _, ok := req[constant.MessageId]; !ok {
 		return errors.New("request message id cannot be empty")
 	}
@@ -25,7 +25,7 @@ func validateMessageId(req map[string]interface{}) error {
 }
 
 func validateQueryFlightsRequest(req map[string]interface{}) error {
-	err := validateMessageId(req)
+	err := ValidateMessageId(req)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func validateQueryFlightsRequest(req map[string]interface{}) error {
 }
 
 func validateQueryFlightDetailsRequest(req map[string]interface{}) error {
-	err := validateMessageId(req)
+	err := ValidateMessageId(req)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func validateQueryFlightDetailsRequest(req map[string]interface{}) error {
 }
 
 func validateAddFlightRequest(req map[string]interface{}) error {
-	err := validateMessageId(req)
+	err := ValidateMessageId(req)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func validateAddFlightRequest(req map[string]interface{}) error {
 }
 
 func validateMakeReservationRequest(req map[string]interface{}) error {
-	err := validateMessageId(req)
+	err := ValidateMessageId(req)
 	if err != nil {
 		return err
 	}

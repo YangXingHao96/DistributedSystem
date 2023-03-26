@@ -54,6 +54,8 @@ func GetFlightDetail(db *sql.DB, flightNo int) (*model.FlightDetail, error) {
 		flightDetail.Source = flightInfo.Source
 		flightDetail.Destination = flightInfo.Destination
 		flightDetail.SeatAvailability = flightInfo.MaxCnt - flightInfo.CurrentCnt
+		flightDetail.TotalSeats = flightInfo.MaxCnt
+		flightDetail.CurrentSeats = flightInfo.CurrentCnt
 	}
 	return &flightDetail, nil
 }
@@ -86,7 +88,9 @@ func CancelReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-
+	if flightDetails.CurrentSeats < seatCnt {
+		return 0, errors.New("current seats reserved are less than number of seats to be cancelled")
+	}
 	cancelStatement := "UPDATE Flight SET current_seat_cnt = current_seat_cnt - $1 WHERE flight_number = $2"
 	stmt, err := db.Prepare(cancelStatement)
 	if err != nil {

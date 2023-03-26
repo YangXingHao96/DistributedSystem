@@ -16,6 +16,7 @@ const (
 	TotalSeats     = "totalSeatCount"
 	CurrentSeats   = "currentSeatCount"
 	AvailableSeats = "availableSeats"
+	SeatCnt = "seatCount"
 	ErrMessage     = "errorMessage"
 	Ack            = "ack"
 )

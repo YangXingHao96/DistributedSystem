@@ -106,11 +106,39 @@ func NewSerializeAddFlightResp(ack string) []byte {
 	return append(serializeInt32(len(buf)+4), buf...)
 }
 
+func NewSerializeMakeReservationReq(msgId string, flightNo int, seatCnt int) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.MakeReservationReq)[0])
+	serMsgId := serializeStr(msgId)
+	serMsgIdSize := serializeInt32(len(serMsgId))
+	buf = append(buf, serMsgIdSize...)
+	buf = append(buf, serMsgId...)
+	buf = append(buf, serializeInt32(flightNo)...)
+	buf = append(buf, serializeInt32(seatCnt)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeMakeReservationResp(ack string) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.MakeReservationReq)[0])
+	serAck := serializeStr(ack)
+	serAckSize := serializeInt32(len(serAck))
+	buf = append(buf, serAckSize...)
+	buf = append(buf, serAck...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
 var deserFuncMapping = map[int]func(b []byte) map[string]interface{} {
 	constant.QueryFlightsReq: deserQueryFlightReq,
 	constant.QueryFlightsResp: deserQueryFlightResp,
 	constant.QueryFlightDetailReq: deserQueryFlightDetailReq,
 	constant.QueryFlightDetailResp: deserQueryFlightDetailResp,
+	constant.AddFlightReq: deserAddFlightReq,
+	constant.AddFlightResp: deserAddFlightResp,
+	constant.MakeReservationReq: deserMakeReservationReq,
+	constant.MakeReservationResp: deserMakeReservationResp,
 }
 
 func Deserialize(b []byte) map[string]interface{} {
@@ -240,6 +268,28 @@ func deserAddFlightResp(b []byte) map[string]interface{} {
 	_, _, ackB := extract(b, 5)
 	return map[string]interface{}{
 		constant.MsgType: constant.AddFlightResp,
+		constant.Ack: strings.TrimRight(string(ackB), "_"),
+	}
+}
+
+func deserMakeReservationReq(b []byte) map[string]interface{} {
+	x := 5
+	_, x, msgIdB := extract(b, x)
+	flightNo := deserializeInt32(b[x:x+4])
+	x += 4
+	seatCnt := deserializeInt32(b[x:x+4])
+	return map[string]interface{}{
+		constant.MsgType: constant.MakeReservationReq,
+		constant.MessageId: strings.TrimRight(string(msgIdB), "_"),
+		constant.FlightNo: flightNo,
+		constant.SeatCnt: seatCnt,
+	}
+}
+
+func deserMakeReservationResp(b []byte) map[string]interface{} {
+	_, _, ackB := extract(b, 5)
+	return map[string]interface{}{
+		constant.MsgType: constant.MakeReservationResp,
 		constant.Ack: strings.TrimRight(string(ackB), "_"),
 	}
 }

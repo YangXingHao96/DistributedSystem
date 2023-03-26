@@ -310,7 +310,7 @@ func deserReservationReq(b []byte) map[string]interface{} {
 	x += 4
 	seatCnt := deserializeInt32(b[x:x+4])
 	return map[string]interface{}{
-		constant.MsgType: constant.MakeReservationReq,
+		constant.MsgType: deserializeInt32(b[4:5]),
 		constant.MessageId: strings.TrimRight(string(msgIdB), "_"),
 		constant.FlightNo: flightNo,
 		constant.SeatCnt: seatCnt,

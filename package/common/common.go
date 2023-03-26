@@ -158,6 +158,44 @@ func NewSerializeGetReservationForFlightResp(flightNo int, seatCnt int) []byte {
 	return append(serializeInt32(len(buf)+4), buf...)
 }
 
+func NewSerializeRegisterForMonitorReq(msgId string, flightNo int, monitorIntervalSec int) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.RegisterForMonitorReq)[0])
+	serMsgId := serializeStr(msgId)
+	serMsgIdSize := serializeInt32(len(serMsgId))
+	buf = append(buf, serMsgIdSize...)
+	buf = append(buf, serMsgId...)
+	buf = append(buf, serializeInt32(flightNo)...)
+	buf = append(buf, serializeInt32(monitorIntervalSec)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeMonitorUpdateResp(flightNo int, availableSeats int) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.MonitorUpdateResp)[0])
+	buf = append(buf, serializeInt32(flightNo)...)
+	buf = append(buf, serializeInt32(availableSeats)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeMonitorBackoffResp(ack string) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.MonitorBackoffResp)[0])
+	buf = append(buf, serializeSimpleAckResp(ack)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeGeneralErrResp(errorMsg string) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.GeneralErrResp)[0])
+	buf = append(buf, serializeSimpleAckResp(errorMsg)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
 func serializeReservationReq(msgId string, flightNo int, seatCnt int) []byte {
 	buf := make([]byte, 0)
 	serMsgId := serializeStr(msgId)
@@ -193,6 +231,10 @@ var deserFuncMapping = map[int]func(b []byte) map[string]interface{} {
 	constant.CancelReservationResp: deserReservationResp,
 	constant.GetReservationForFlightReq: deserGetReservationForFlightReq,
 	constant.GetReservationForFlightResp: deserGetReservationForFlightResp,
+	constant.RegisterForMonitorReq: deserRegisterForMonitorReq,
+	constant.MonitorUpdateResp: deserMonitorUpdateResp,
+	constant.MonitorBackoffResp: deserMonitorBackOffResp,
+	constant.GeneralErrResp: deserGeneralErrorResp,
 }
 
 func Deserialize(b []byte) map[string]interface{} {
@@ -364,6 +406,44 @@ func deserGetReservationForFlightResp(b []byte) map[string]interface{} {
 		constant.MsgType: deserializeInt32(b[4:5]),
 		constant.FlightNo: deserializeInt32(b[5:9]),
 		constant.SeatCnt: deserializeInt32(b[9:13]),
+	}
+}
+
+func deserRegisterForMonitorReq(b []byte) map[string]interface{} {
+	x := 5
+	_, x, msgIdB := extract(b, x)
+	flightNo := deserializeInt32(b[x:x+4])
+	x += 4
+	monitorIntervalSec := deserializeInt32(b[x:x+4])
+	return map[string]interface{}{
+		constant.MsgType: deserializeInt32(b[4:5]),
+		constant.MessageId: strings.TrimRight(string(msgIdB), "_"),
+		constant.FlightNo: flightNo,
+		constant.MonitorIntervalSec: monitorIntervalSec,
+	}
+}
+
+func deserMonitorUpdateResp(b []byte) map[string]interface{} {
+	return map[string]interface{}{
+		constant.MsgType: deserializeInt32(b[4:5]),
+		constant.FlightNo: deserializeInt32(b[5:9]),
+		constant.AvailableSeats: deserializeInt32(b[9:13]),
+	}
+}
+
+func deserMonitorBackOffResp(b []byte) map[string]interface{} {
+	_, _, ackB := extract(b, 5)
+	return map[string]interface{}{
+		constant.MsgType: deserializeInt32(b[4:5]),
+		constant.Ack: strings.TrimRight(string(ackB), "_"),
+	}
+}
+
+func deserGeneralErrorResp(b []byte) map[string]interface{} {
+	_, _, errMsg := extract(b, 5)
+	return map[string]interface{}{
+		constant.MsgType: deserializeInt32(b[4:5]),
+		constant.ErrMessage: strings.TrimRight(string(errMsg), "_"),
 	}
 }
 

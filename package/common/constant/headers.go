@@ -13,7 +13,7 @@ const (
 	CancelReservationResp
 	GetReservationForFlightReq
 	GetReservationForFlightResp
-	RegisterForMonitor
+	RegisterForMonitorReq
 	MonitorUpdateResp
 	MonitorBackoffResp
 	GeneralErrResp

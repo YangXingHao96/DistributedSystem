@@ -19,4 +19,5 @@ const (
 	SeatCnt = "seatCount"
 	ErrMessage     = "errorMessage"
 	Ack            = "ack"
+	MonitorIntervalSec = "monitorIntervalSec"
 )

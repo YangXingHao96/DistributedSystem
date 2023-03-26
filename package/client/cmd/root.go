@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"github.com/YangXingHao96/DistributedSystem/package/client"
 	"github.com/YangXingHao96/DistributedSystem/package/common"
+	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/briandowns/spinner"
 	"github.com/manifoldco/promptui"
 	"math/rand"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -43,6 +45,10 @@ var supportedCmds = map[string]cmdsPromptFormat{
 		Prompt: promptGetReservationForFlight,
 		Fmt: fmtGetReservationForFlight,
 	},
+	"Subscribe to a flight for live update on seat availability": {
+		Prompt: promptRegisterMonitorReq,
+		Fmt: fmtMonitorFlightResp,
+	},
 }
 
 
@@ -65,6 +71,7 @@ func start(cmd *cobra.Command, args []string) {
 	for k := range supportedCmds {
 		cmds = append(cmds, k)
 	}
+	sort.Strings(cmds)
 	for {
 		prompt := promptui.Select{
 			Label: "Select an action",
@@ -97,16 +104,32 @@ func start(cmd *cobra.Command, args []string) {
 		if _, err := conn.Write(data); err != nil {
 			panic(err)
 		}
-		buffer := make([]byte, 1024)
-		mLen, err := conn.Read(buffer)
-		if err != nil {
-			fmt.Println("Error reading:", err.Error())
-			return
-		}
 		executionTime := time.Since(start)
-		resp := common.Deserialize(buffer[:mLen])
-		fmt.Println()
-		s.FinalMSG = fmt.Sprintf("done\n=====================\n%v\n", supportedCmds[c].Fmt(resp))
+		keepReading := true
+		for keepReading {
+			keepReading = false
+			buffer := make([]byte, 1024)
+			mLen, err := conn.Read(buffer)
+			if err != nil {
+				fmt.Println("Error reading:", err.Error())
+				return
+			}
+			resp := common.Deserialize(buffer[:mLen])
+			msgType := resp[constant.MsgType].(int)
+			if msgType == constant.GeneralErrResp {
+				s.FinalMSG = fmtGeneralErrResp(resp)
+				continue
+			}
+
+			respFmtOutput := supportedCmds[c].Fmt(resp)
+
+			s.FinalMSG = fmt.Sprintf("\ndone.\n============ Output ============\n%v\n", respFmtOutput)
+			if msgType == constant.MonitorUpdateResp {
+				keepReading = true
+				fmt.Println(respFmtOutput)
+				s.FinalMSG = ""
+			}
+		}
 		s.Stop()
 		fmt.Printf("🧰 Total execution time: %d ms\n", executionTime.Milliseconds())
 	}

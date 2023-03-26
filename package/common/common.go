@@ -108,6 +108,37 @@ func NewSerializeAddFlightResp(ack string) []byte {
 func NewSerializeMakeReservationReq(msgId string, flightNo int, seatCnt int) []byte {
 	buf := make([]byte, 0)
 	buf = append(buf, serializeInt32(constant.MakeReservationReq)[0])
+	buf = append(buf, serializeReservationReq(msgId, flightNo, seatCnt)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeMakeReservationResp(ack string) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.MakeReservationResp)[0])
+	buf = append(buf, serializeSimpleAckResp(ack)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeCancelReservationReq(msgId string, flightNo int, seatCnt int) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.CancelReservationReq)[0])
+	buf = append(buf, serializeReservationReq(msgId, flightNo, seatCnt)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeCancelReservationResp(ack string) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.CancelReservationResp)[0])
+	buf = append(buf, serializeSimpleAckResp(ack)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func serializeReservationReq(msgId string, flightNo int, seatCnt int) []byte {
+	buf := make([]byte, 0)
 	serMsgId := serializeStr(msgId)
 	serMsgIdSize := serializeInt32(len(serMsgId))
 	buf = append(buf, serMsgIdSize...)
@@ -115,18 +146,17 @@ func NewSerializeMakeReservationReq(msgId string, flightNo int, seatCnt int) []b
 	buf = append(buf, serializeInt32(flightNo)...)
 	buf = append(buf, serializeInt32(seatCnt)...)
 
-	return append(serializeInt32(len(buf)+4), buf...)
+	return buf
 }
 
-func NewSerializeMakeReservationResp(ack string) []byte {
-	buf := make([]byte, 0)
-	buf = append(buf, serializeInt32(constant.MakeReservationReq)[0])
+func serializeSimpleAckResp(ack string) []byte {
 	serAck := serializeStr(ack)
 	serAckSize := serializeInt32(len(serAck))
+	buf := make([]byte, 0)
 	buf = append(buf, serAckSize...)
 	buf = append(buf, serAck...)
 
-	return append(serializeInt32(len(buf)+4), buf...)
+	return buf
 }
 
 var deserFuncMapping = map[int]func(b []byte) map[string]interface{} {

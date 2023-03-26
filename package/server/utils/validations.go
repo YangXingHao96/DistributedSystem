@@ -135,5 +135,21 @@ func validateMakeReservationRequest(req map[string]interface{}) error {
 }
 
 func validateCancelReservationRequest(req map[string]interface{}) error {
+	err := ValidateMessageId(req)
+	if err != nil {
+		return err
+	}
+	if _, ok := req[constant.FlightNo]; !ok {
+		return errors.New("request cancelReservation flight number cannot be empty")
+	}
+	if reflect.TypeOf(req[constant.FlightNo]).Kind() != reflect.Int {
+		return errors.New("request cancelReservation flight number not of type int")
+	}
+	if _, ok := req[constant.SeatCnt]; !ok {
+		return errors.New("request cancelReservation seat count cannot be empty")
+	}
+	if reflect.TypeOf(req[constant.SeatCnt]).Kind() != reflect.Int {
+		return errors.New("request cancelReservation seat count not of type int")
+	}
 	return nil
 }

@@ -15,7 +15,8 @@ func MakeReservation(req map[string]interface{}, db *sql.DB) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	ack := fmt.Sprintf("reservation of %v seats made for flight number %v, remaining %v seats", seatCnt, flightNo, remainingSeats)
+	ack := fmt.Sprintf("reservation of %v seats made for flight number %v, remaining %v seats\n", seatCnt, flightNo, remainingSeats)
+	fmt.Println(ack)
 	resp := common.NewSerializeMakeReservationResp(ack)
 	return resp, nil
 }

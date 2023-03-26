@@ -10,7 +10,7 @@ import (
 
 func HandleUDPRequestAtMostOnce(db *sql.DB) {
 	// Listen for incoming packets on port 8080
-	var msgIdSet = map[string]struct{}{}
+	var msgIdSet = map[string][]byte{}
 	udpServer, err := net.ListenPacket("udp", "localhost:2222")
 	if err != nil {
 		panic(err)
@@ -25,12 +25,18 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
 		request := common.Deserialize(buf[:n])
-		err = service.HandleDuplicateRequest(request, msgIdSet)
-		if err != nil {
-			fmt.Printf("An error has ocurred")
+		resp, err := service.HandleDuplicateRequest(request, msgIdSet)
+		if resp != nil {
+			fmt.Println("handing repeated request")
+			if _, err := udpServer.WriteTo(resp, addr); err != nil {
+				fmt.Printf("An error has occured: %v\n", err)
+			}
 			continue
 		}
-		resp, err := service.HandleIncomingRequest(request, db)
+		if err != nil {
+			fmt.Printf("An error has occured: %v\n", err)
+		}
+		resp, err = service.HandleIncomingRequest(request, db)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
 		} else {

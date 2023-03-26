@@ -206,6 +206,44 @@ func deserQueryFlightDetailResp(b []byte) map[string]interface{} {
 	}
 }
 
+func deserAddFlightReq(b []byte) map[string]interface{} {
+	x := 5
+	_, x, msgIdB := extract(b, x)
+	flightNo := deserializeInt32(b[x:x+4])
+	x += 4
+	_, x, sourceB := extract(b, x)
+	_, x, destB := extract(b, x)
+	depHr := deserializeInt32(b[x:x+1])
+	x++
+	depMin := deserializeInt32(b[x:x+1])
+	x++
+	airFare := deserializeFloat32(b[x:x+4])
+	x += 4
+	ttlSeatCnt := deserializeInt32(b[x:x+4])
+	x += 4
+	curSeatCnt := deserializeInt32(b[x:x+4])
+	return map[string]interface{}{
+		constant.MsgType: constant.AddFlightReq,
+		constant.MessageId: strings.TrimRight(string(msgIdB), "_"),
+		constant.FlightNo: flightNo,
+		constant.Source: strings.TrimRight(string(sourceB), "_"),
+		constant.Destination: strings.TrimRight(string(destB), "_"),
+		constant.DepartureHour: depHr,
+		constant.DepartureMin: depMin,
+		constant.AirFare: airFare,
+		constant.TotalSeats: ttlSeatCnt,
+		constant.CurrentSeats: curSeatCnt,
+	}
+}
+
+func deserAddFlightResp(b []byte) map[string]interface{} {
+	_, _, ackB := extract(b, 5)
+	return map[string]interface{}{
+		constant.MsgType: constant.AddFlightResp,
+		constant.Ack: strings.TrimRight(string(ackB), "_"),
+	}
+}
+
 func extract(b []byte, ptr int) (int, int, []byte) {
 	size := deserializeInt32(b[ptr:ptr+4])
 	ptr += 4

@@ -114,7 +114,8 @@ func prepTableData(filePath string) ([]*model.FlightInformation, error) {
 		destionation := record[2]
 		departureHour, _ := strconv.Atoi(record[3])
 		departureMin, _ := strconv.Atoi(record[4])
-		airFare, _ := strconv.ParseFloat(record[5], 64)
+		airFare, _ := strconv.ParseFloat(record[5], 32)
+		airFare32bits := float32(airFare)
 		maxCnt, _ := strconv.Atoi(record[6])
 		curCnt, _ := strconv.Atoi(record[7])
 		flightInfo := &model.FlightInformation{
@@ -123,7 +124,7 @@ func prepTableData(filePath string) ([]*model.FlightInformation, error) {
 			Destination:   destionation,
 			DepartureHour: departureHour,
 			DepartureMin:  departureMin,
-			AirFare:       airFare,
+			AirFare:       airFare32bits,
 			MaxCnt:        maxCnt,
 			CurrentCnt:    curCnt,
 		}

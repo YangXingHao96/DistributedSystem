@@ -6,7 +6,7 @@ type FlightInformation struct {
 	Destination   string
 	DepartureHour int
 	DepartureMin  int
-	AirFare       float64
+	AirFare       float32
 	MaxCnt        int
 	CurrentCnt    int
 }

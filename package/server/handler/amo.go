@@ -8,7 +8,7 @@ import (
 
 func HandleUDPRequestAtMostOnce(db *sql.DB) {
 	// Listen for incoming packets on port 8080
-	conn, err := net.ListenPacket("udp", ":8080")
+	conn, err := net.ListenPacket("udp", "localhost:2222")
 	if err != nil {
 		panic(err)
 	}

@@ -61,7 +61,7 @@ func isTableExistsError(err error) bool {
 }
 
 func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
-	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    departure_hour INTEGER,\n    departure_min INTEGER,\n    air_fare FLOAT,\n    max_cnt INTEGER,\n    current_cnt INTEGER)"
+	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    departure_hour INTEGER,\n    departure_min INTEGER,\n    air_fare FLOAT,\n    max_seat_cnt INTEGER,\n    current_seat_cnt INTEGER)"
 	fmt.Printf("Executing creations: %s\n", createTable)
 	_, err := db.Exec(createTable)
 	if err != nil {
@@ -74,7 +74,7 @@ func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 	}
 
 	for _, flight := range flightSlice {
-		insertFlight := "INSERT INTO Flight (flight_number, source, destination, departure_hour, departure_min, air_fare, max_cnt, current_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
+		insertFlight := "INSERT INTO Flight (flight_number, source, destination, departure_hour, departure_min, air_fare, max_seat_cnt, current_seat_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
 		_, err := db.Exec(insertFlight, flight.FlightNo, flight.Source, flight.Destination, flight.DepartureHour, flight.DepartureMin, flight.AirFare, flight.MaxCnt, flight.CurrentCnt)
 		if err != nil {
 			pqErr, ok := err.(*pq.Error)

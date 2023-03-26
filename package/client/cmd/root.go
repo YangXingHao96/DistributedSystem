@@ -3,15 +3,25 @@ package cmd
 import (
 	"fmt"
 	"github.com/YangXingHao96/DistributedSystem/package/client"
+	"github.com/YangXingHao96/DistributedSystem/package/common"
 	"github.com/manifoldco/promptui"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-var supportedCmds = map[string]func(conn client.UdpConn) error{
-	"Query flight identifier(s) by specifying the source and destination places": getFlightIdBySourceDest,
+type cmdsPromptFormat struct {
+	Prompt func() ([]byte, error)
+	Fmt func(resp map[string]string)
 }
+
+var supportedCmds = map[string]cmdsPromptFormat{
+	"Query flight identifier(s) by specifying the source and destination places": {
+		Prompt: promptGetFlightIdBySourceDest,
+		Fmt: fmtGetFlightIdBySourceDest,
+	},
+}
+
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -36,20 +46,34 @@ func start(cmd *cobra.Command, args []string) {
 			Items: cmds,
 		}
 
-		_, result, err := prompt.Run()
+		_, c, err := prompt.Run()
 
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
 			return
 		}
-		if _, exist := supportedCmds[result]; !exist {
-			fmt.Printf("chosen command %s is not supported", result)
+		if _, exist := supportedCmds[c]; !exist {
+			fmt.Printf("chosen command %s is not supported", c)
 			continue
 		}
-		if err := supportedCmds[result](conn); err != nil {
-			fmt.Println(err)
-			continue
+		data, err := supportedCmds[c].Prompt()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
 		}
+
+		// read and write to server
+		if _, err := conn.Write(data); err != nil {
+			panic(err)
+		}
+		buffer := make([]byte, 1024)
+		mLen, err := conn.Read(buffer)
+		if err != nil {
+			fmt.Println("Error reading:", err.Error())
+			return
+		}
+		resp := common.Deserialize(buffer[:mLen])
+		supportedCmds[c].Fmt(resp)
 	}
 }
 

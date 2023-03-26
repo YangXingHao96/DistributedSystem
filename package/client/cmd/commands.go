@@ -2,23 +2,32 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/YangXingHao96/DistributedSystem/package/client"
+	"github.com/YangXingHao96/DistributedSystem/package/common"
+	"github.com/lithammer/shortuuid/v4"
+	"github.com/manifoldco/promptui"
 )
 
-// TODO
-func getFlightIdBySourceDest(conn client.UdpConn) error {
-	fmt.Println("called getFlightIdBySourceDest")
-	// send some data
-	if _, err := conn.Write([]byte("Hello Server! Greetings.")); err != nil {
-		panic(err)
+func promptGetFlightIdBySourceDest() ([]byte, error) {
+	prompt := promptui.Prompt{
+		Label:    "Flight source",
 	}
-	buffer := make([]byte, 1024)
-	mLen, err := conn.Read(buffer)
+	source, err := prompt.Run()
 	if err != nil {
-		fmt.Println("Error reading:", err.Error())
+		return nil, err
 	}
-	fmt.Println("Received: ", string(buffer[:mLen]))
-	defer conn.Close()
 
-	return nil
+	prompt = promptui.Prompt{
+		Label:    "Flight destination",
+	}
+	dest, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	return common.NewSerializeGetFlightIdBySourceDest(shortuuid.New(), source, dest), nil
+}
+
+func fmtGetFlightIdBySourceDest(resp map[string]string) {
+	flightNo := resp["flightNos"]
+	fmt.Printf("Flight IDs: %s\n", flightNo)
 }

@@ -24,6 +24,7 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 		fmt.Printf("Received %d bytes from %s: %s\n", n, addr.String(), string(buf[:n]))
 
 		request := common.Deserialize(buf)
+		fmt.Println(request)
 		resp, err := service.HandleIncomingRequest(request, db)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
@@ -31,9 +32,6 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 			if _, err := udpServer.WriteTo(resp, addr); err != nil {
 				fmt.Printf("An error has occured: %v\n", err)
 			}
-		}
-		if _, err := udpServer.WriteTo([]byte("Server Echo: "+string(buf[:n])), addr); err != nil {
-			panic(err)
 		}
 	}
 }

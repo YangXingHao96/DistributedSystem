@@ -7,11 +7,11 @@ import (
 )
 
 var Validators = map[int]func(map[string]interface{}) error{
-	constant.QueryFlights:      validateQueryFlightsRequest,
-	constant.QueryFlightDetail: validateQueryFlightDetailsRequest,
-	constant.AddFlight:         validateAddFlightRequest,
-	constant.MakeReservation:   validateMakeReservationRequest,
-	constant.CancelReservation: validateCancelReservationRequest,
+	constant.QueryFlightsReq:      validateQueryFlightsRequest,
+	constant.QueryFlightDetailReq: validateQueryFlightDetailsRequest,
+	constant.AddFlightReq:         validateAddFlightRequest,
+	constant.MakeReservationReq:   validateMakeReservationRequest,
+	constant.CancelReservationReq: validateCancelReservationRequest,
 }
 
 func validateMessageId(req map[string]interface{}) error {

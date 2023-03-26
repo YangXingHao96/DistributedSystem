@@ -24,6 +24,6 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 			fmt.Println("Error:", err)
 			continue
 		}
-		fmt.Printf("Received %d bytes from %s: %s\n", n, addr.String(), string(buffer[:n]))
+		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buffer[:n])
 	}
 }

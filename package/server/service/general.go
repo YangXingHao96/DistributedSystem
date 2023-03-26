@@ -26,7 +26,6 @@ func HandleIncomingRequest(req map[string]interface{}, db *sql.DB) ([]byte, erro
 		return nil, errors.New("request field requestType not of type int")
 	}
 
-	fmt.Println("Calling service map")
 	if _, exist := serviceMap[requestType]; !exist {
 		return nil, errors.New(fmt.Sprintf("request type %v not supported", requestType))
 	}

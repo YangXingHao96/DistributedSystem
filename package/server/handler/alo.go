@@ -21,10 +21,9 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Received %d bytes from %s: %s\n", n, addr.String(), string(buf[:n]))
+		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
-		request := common.Deserialize(buf)
-		fmt.Println(request)
+		request := common.Deserialize(buf[:n])
 		resp, err := service.HandleIncomingRequest(request, db)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)

@@ -86,9 +86,9 @@ func start(cmd *cobra.Command, args []string) {
 		executionTime := time.Since(start)
 		resp := common.Deserialize(buffer[:mLen])
 		fmt.Println()
-		s.FinalMSG = supportedCmds[c].Fmt(resp)
+		s.FinalMSG = fmt.Sprintf("done\n=====================\n%v\n", supportedCmds[c].Fmt(resp))
 		s.Stop()
-		fmt.Printf("🧰 Total execution time: %d ms", executionTime.Milliseconds())
+		fmt.Printf("🧰 Total execution time: %d ms\n", executionTime.Milliseconds())
 	}
 }
 

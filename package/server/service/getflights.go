@@ -19,7 +19,6 @@ func GetFlightNumbers(req map[string]interface{}, db *sql.DB) ([]byte, error) {
 	for _, flightId := range flightIds {
 		fmt.Printf("flight id: %v\n", flightId)
 	}
-	fmt.Printf("")
 	resp := common.NewSerializeGetFlightIdBySourceDestResp(flightIds)
 	return resp, nil
 }

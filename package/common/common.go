@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"math"
+	"strings"
 )
 
 func NewSerializeGetFlightIdBySourceDest(msgId, source, dest string) []byte {
@@ -24,19 +25,17 @@ func NewSerializeGetFlightIdBySourceDest(msgId, source, dest string) []byte {
 	buf = append(buf, serDestSize...)
 	buf = append(buf, serDest...)
 
-	return append(serializeInt32(len(buf)), buf...)
+	return append(serializeInt32(len(buf)+4), buf...)
 }
 
 func NewSerializeGetFlightIdBySourceDestResp(flightNo []int) []byte {
 	buf := make([]byte, 0)
-	buf = append(buf, serializeInt32(len(flightNo))...)
 	buf = append(buf, serializeInt32(constant.QueryFlightsResp)[0])
 	buf = append(buf, serializeInt32(len(flightNo))...)
 	for _, f := range flightNo {
 		buf = append(buf, serializeInt32(f)...)
 	}
-
-	return append(serializeInt32(len(buf)), buf...)
+	return append(serializeInt32(len(buf)+4), buf...)
 }
 
 var deserFuncMapping = map[int]func(b []byte) map[string]interface{} {
@@ -74,10 +73,12 @@ func serializeInt32(x int) []byte {
 }
 
 func deserializeInt32(b []byte) int {
-	for len(b) < 4 {
-		b = append(b, 0)
+	t := make([]byte, len(b))
+	copy(t, b)
+	for len(t) < 4 {
+		t = append(t, 0)
 	}
-	return int(binary.LittleEndian.Uint32(b))
+	return int(binary.LittleEndian.Uint32(t))
 }
 
 func deserQueryFlightReq(b []byte) map[string]interface{} {
@@ -87,9 +88,9 @@ func deserQueryFlightReq(b []byte) map[string]interface{} {
 	_, _, destB := extract(b, x)
 	return map[string]interface{}{
 		constant.MsgType: constant.QueryFlightsReq,
-		constant.MessageId: string(msgIdB),
-		constant.Source: string(sourceB),
-		constant.Destination: string(destB),
+		constant.MessageId: strings.TrimRight(string(msgIdB), "_"),
+		constant.Source: strings.TrimRight(string(sourceB), "_"),
+		constant.Destination: strings.TrimRight(string(destB), "_"),
 	}
 }
 
@@ -104,7 +105,7 @@ func deserQueryFlightResp(b []byte) map[string]interface{} {
 
 func extract(b []byte, ptr int) (int, int, []byte) {
 	size := deserializeInt32(b[ptr:ptr+4])
-	ptr += size
+	ptr += 4
 	data := b[ptr:ptr+size]
 	ptr += size
 

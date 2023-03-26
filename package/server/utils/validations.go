@@ -18,7 +18,7 @@ func validateMessageId(req map[string]interface{}) error {
 	if _, ok := req[constant.MessageId]; !ok {
 		return errors.New("request message id cannot be empty")
 	}
-	if reflect.TypeOf(req[constant.MessageId]).Kind() == reflect.String {
+	if reflect.TypeOf(req[constant.MessageId]).Kind() != reflect.String {
 		return errors.New("request message id not of type string")
 	}
 	return nil
@@ -32,13 +32,13 @@ func validateQueryFlightsRequest(req map[string]interface{}) error {
 	if _, ok := req[constant.Source]; !ok {
 		return errors.New("request query flights source cannot be empty")
 	}
-	if reflect.TypeOf(req[constant.Source]).Kind() == reflect.String {
+	if reflect.TypeOf(req[constant.Source]).Kind() != reflect.String {
 		return errors.New("request query flights source not of type string")
 	}
 	if _, ok := req[constant.Destination]; !ok {
 		return errors.New("request query flights destination cannot be empty")
 	}
-	if reflect.TypeOf(req[constant.Destination]).Kind() == reflect.String {
+	if reflect.TypeOf(req[constant.Destination]).Kind() != reflect.String {
 		return errors.New("request query flights destination not of type string")
 	}
 	return nil

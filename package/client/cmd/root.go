@@ -23,6 +23,10 @@ var supportedCmds = map[string]cmdsPromptFormat{
 		Prompt: promptGetFlightIdBySourceDest,
 		Fmt: fmtGetFlightIdBySourceDest,
 	},
+	"Query flight details by its ID": {
+		Prompt: promptGetFlightDetail,
+		Fmt: fmtGetFlightDetail,
+	},
 }
 
 

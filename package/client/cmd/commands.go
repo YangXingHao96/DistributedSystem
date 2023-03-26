@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/YangXingHao96/DistributedSystem/package/common"
+	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/lithammer/shortuuid/v4"
 	"github.com/manifoldco/promptui"
 )
@@ -28,6 +29,6 @@ func promptGetFlightIdBySourceDest() ([]byte, error) {
 }
 
 func fmtGetFlightIdBySourceDest(resp map[string]interface{}) {
-	flightNo := resp["flightNos"]
+	flightNo := resp[constant.FlightNos]
 	fmt.Printf("Flight IDs: %s\n", flightNo)
 }

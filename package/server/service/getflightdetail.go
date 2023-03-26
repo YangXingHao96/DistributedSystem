@@ -19,7 +19,7 @@ func GetFlightDetails(req map[string]interface{}, db *sql.DB) ([]byte, error) {
 		flightDetails.Source = ""
 		flightDetails.Destination = ""
 	}
-	fmt.Printf("flight detail retrieved, flight number: %v, flight source: %v, flight destination: %v, flight seat availability: %v", flightDetails.FlightNo, flightDetails.Source, flightDetails.Destination, flightDetails.SeatAvailability)
+	fmt.Printf("flight detail retrieved, flight number: %v, flight source: %v, flight destination: %v, flight seat availability: %v\n", flightDetails.FlightNo, flightDetails.Source, flightDetails.Destination, flightDetails.SeatAvailability)
 	resp := common.NewSerializeQueryFlightDetailResp(flightDetails.FlightNo, flightDetails.Source, flightDetails.Destination, flightDetails.SeatAvailability)
 	return resp, nil
 }

@@ -102,7 +102,7 @@ func CancelReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
 	return newSeatCnt, nil
 }
 
-func AddFlight(db *sql.DB, flightNo, departureHour, departureMin, maxCnt, curCnt int, source, destination string, airFare float64) error {
+func AddFlight(db *sql.DB, flightNo, departureHour, departureMin, maxCnt, curCnt int, source, destination string, airFare float32) error {
 	insertStatement := "INSERT INTO Flight (flight_number, source, destination, departure_hour, departure_min, air_fare, max_seat_cnt, current_seat_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
 	_, err := db.Exec(insertStatement, flightNo, source, destination, departureHour, departureMin, airFare, maxCnt, curCnt)
 	if err != nil {

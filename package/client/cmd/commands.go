@@ -198,7 +198,7 @@ func promptAddFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Current seat count",
+		Label:    "Current number of seats booked",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {

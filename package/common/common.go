@@ -91,7 +91,6 @@ func NewSerializeAddFlightReq(msgId string, flightNo int, source string, dest st
 	buf = append(buf, serializeFloat32(airFare)...)
 	buf = append(buf, serializeInt32(totalSeatCount)...)
 	buf = append(buf, serializeInt32(currentSeatCount)...)
-
 	return append(serializeInt32(len(buf)+4), buf...)
 }
 
@@ -137,8 +136,10 @@ var deserFuncMapping = map[int]func(b []byte) map[string]interface{} {
 	constant.QueryFlightDetailResp: deserQueryFlightDetailResp,
 	constant.AddFlightReq: deserAddFlightReq,
 	constant.AddFlightResp: deserAddFlightResp,
-	constant.MakeReservationReq: deserMakeReservationReq,
-	constant.MakeReservationResp: deserMakeReservationResp,
+	constant.MakeReservationReq: deserReservationReq,
+	constant.MakeReservationResp: deserReservationResp,
+	constant.CancelReservationReq: deserReservationReq,
+	constant.CancelReservationResp: deserReservationResp,
 }
 
 func Deserialize(b []byte) map[string]interface{} {
@@ -180,7 +181,7 @@ func deserializeInt32(b []byte) int {
 }
 
 func serializeFloat32(x float32) []byte {
-	var buf [8]byte
+	var buf [4]byte
 	binary.LittleEndian.PutUint32(buf[:], math.Float32bits(x))
 	return buf[:]
 }
@@ -272,7 +273,7 @@ func deserAddFlightResp(b []byte) map[string]interface{} {
 	}
 }
 
-func deserMakeReservationReq(b []byte) map[string]interface{} {
+func deserReservationReq(b []byte) map[string]interface{} {
 	x := 5
 	_, x, msgIdB := extract(b, x)
 	flightNo := deserializeInt32(b[x:x+4])
@@ -286,7 +287,7 @@ func deserMakeReservationReq(b []byte) map[string]interface{} {
 	}
 }
 
-func deserMakeReservationResp(b []byte) map[string]interface{} {
+func deserReservationResp(b []byte) map[string]interface{} {
 	_, _, ackB := extract(b, 5)
 	return map[string]interface{}{
 		constant.MsgType: constant.MakeReservationResp,

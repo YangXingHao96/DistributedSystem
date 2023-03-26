@@ -62,46 +62,48 @@ func GetFlightDetail(db *sql.DB, flightNo int) (*model.FlightDetail, error) {
 	return &flightDetail, nil
 }
 
-func MakeReservation(db *sql.DB, flightNo, seatCnt int) error {
+func MakeReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
 	flightDetail, err := GetFlightDetail(db, flightNo)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if seatCnt > flightDetail.SeatAvailability {
-		return errors.New("cannot reserve seats more than available seats")
+		return 0, errors.New("cannot reserve seats more than available seats")
 	}
 	reservationStatement := "UPDATE Flight SET current_seat_cnt = current_seat_cnt + $1 WHERE flight_number = $2"
 	stmt, err := db.Prepare(reservationStatement)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(seatCnt, flightNo)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	newSeatCnt := flightDetail.SeatAvailability - seatCnt
+	return newSeatCnt, nil
 }
 
-func CancelReservation(db *sql.DB, flightNo, seatCnt int) error {
-	_, err := GetFlightDetail(db, flightNo)
+func CancelReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
+	flightDetails, err := GetFlightDetail(db, flightNo)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	cancelStatement := "UPDATE Flight SET current_seat_cnt = current_seat_cnt - $1 WHERE flight_number = $2"
 	stmt, err := db.Prepare(cancelStatement)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(seatCnt, flightNo)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	newSeatCnt := flightDetails.SeatAvailability + seatCnt
+	return newSeatCnt, nil
 }
 
 func AddFlight(db *sql.DB, flightNo, departureHour, departureMin, maxCnt, curCnt int, source, destination string, airFare float64) error {

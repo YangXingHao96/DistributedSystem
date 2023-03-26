@@ -67,7 +67,7 @@ func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 	if err != nil {
 		if isTableExistsError(err) {
 			// Handle error if table already exists
-			fmt.Printf("table flight already exists")
+			fmt.Printf("table flight already exists\n")
 		} else {
 			return err
 		}
@@ -84,7 +84,7 @@ func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 			}
 			// Check for unique key violation error
 			if pqErr.Code == "23505" {
-				fmt.Printf("unique key violation: %s", pqErr.Message)
+				fmt.Printf("unique key violation: %s\n", pqErr.Message)
 			} else {
 				return err
 			}

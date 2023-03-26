@@ -27,7 +27,7 @@ func promptGetFlightIdBySourceDest() ([]byte, error) {
 	return common.NewSerializeGetFlightIdBySourceDest(shortuuid.New(), source, dest), nil
 }
 
-func fmtGetFlightIdBySourceDest(resp map[string]interface{}) {
+func fmtGetFlightIdBySourceDest(resp map[string]interface{}) string {
 	flightNo := resp["flightNos"]
-	fmt.Printf("Flight IDs: %s\n", flightNo)
+	return fmt.Sprintf("Flight IDs: %s\n", flightNo)
 }

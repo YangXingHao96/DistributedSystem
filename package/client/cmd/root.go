@@ -4,15 +4,18 @@ import (
 	"fmt"
 	"github.com/YangXingHao96/DistributedSystem/package/client"
 	"github.com/YangXingHao96/DistributedSystem/package/common"
+	"github.com/briandowns/spinner"
 	"github.com/manifoldco/promptui"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
 type cmdsPromptFormat struct {
 	Prompt func() ([]byte, error)
-	Fmt func(resp map[string]interface{})
+	Fmt func(resp map[string]interface{}) string
 }
 
 var supportedCmds = map[string]cmdsPromptFormat{
@@ -32,6 +35,8 @@ var rootCmd = &cobra.Command{
 }
 
 func start(cmd *cobra.Command, args []string) {
+	rand.Seed(time.Now().UnixNano())
+
 	fmt.Println("Welcome to THE flight application!")
 	conn := client.MustInit()
 	defer conn.Close()
@@ -62,6 +67,12 @@ func start(cmd *cobra.Command, args []string) {
 			return
 		}
 
+		s := spinner.New(spinner.CharSets[rand.Intn(44)], 100*time.Millisecond)
+		s.Prefix = "working on it... "
+		s.Color("blue")
+		// measure execution time
+		start := time.Now()
+		s.Start()
 		// read and write to server
 		if _, err := conn.Write(data); err != nil {
 			panic(err)
@@ -72,8 +83,12 @@ func start(cmd *cobra.Command, args []string) {
 			fmt.Println("Error reading:", err.Error())
 			return
 		}
+		executionTime := time.Since(start)
 		resp := common.Deserialize(buffer[:mLen])
-		supportedCmds[c].Fmt(resp)
+		fmt.Println()
+		s.FinalMSG = supportedCmds[c].Fmt(resp)
+		s.Stop()
+		fmt.Printf("🧰 Total execution time: %d ms", executionTime.Milliseconds())
 	}
 }
 

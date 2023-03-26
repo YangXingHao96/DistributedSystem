@@ -29,7 +29,11 @@ var supportedCmds = map[string]cmdsPromptFormat{
 	},
 	"Add a flight": {
 		Prompt: promptAddFlight,
-		Fmt: fmtAddFlight,
+		Fmt: fmtSimpleAck,
+	},
+	"Make a reservation flight": {
+		Prompt: promptMakeReservation,
+		Fmt: fmtSimpleAck,
 	},
 }
 

@@ -35,12 +35,45 @@ func NewSerializeGetFlightIdBySourceDestResp(flightNo []int) []byte {
 	for _, f := range flightNo {
 		buf = append(buf, serializeInt32(f)...)
 	}
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeQueryFlightDetailReq(msgId string, flightNo int) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.QueryFlightDetailReq)[0])
+	serMsgId := serializeStr(msgId)
+	serMsgIdSize := serializeInt32(len(serMsgId))
+	buf = append(buf, serMsgIdSize...)
+	buf = append(buf, serMsgId...)
+	buf = append(buf, serializeInt32(flightNo)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeQueryFlightDetailResp(flightNo int, source string, dest string, availSeats int) []byte {
+	serSource := serializeStr(source)
+	serSourceSize := serializeInt32(len(serSource))
+	serDest := serializeStr(dest)
+	serDestSize := serializeInt32(len(serDest))
+
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.QueryFlightDetailReq)[0])
+	buf = append(buf, serializeInt32(flightNo)...)
+	buf = append(buf, serSourceSize...)
+	buf = append(buf, serSource...)
+	buf = append(buf, serDestSize...)
+	buf = append(buf, serDest...)
+	buf = append(buf, serializeInt32(availSeats)...)
+
 	return append(serializeInt32(len(buf)+4), buf...)
 }
 
 var deserFuncMapping = map[int]func(b []byte) map[string]interface{} {
 	constant.QueryFlightsReq: deserQueryFlightReq,
 	constant.QueryFlightsResp: deserQueryFlightResp,
+	constant.QueryFlightDetailReq: deserQueryFlightDetailReq,
+	constant.QueryFlightDetailResp: deserQueryFlightDetailResp,
 }
 
 func Deserialize(b []byte) map[string]interface{} {
@@ -100,6 +133,29 @@ func deserQueryFlightResp(b []byte) map[string]interface{} {
 	return map[string]interface{}{
 		constant.MsgType: constant.QueryFlightsResp,
 		constant.FlightNos: flightIds,
+	}
+}
+
+func deserQueryFlightDetailReq(b []byte) map[string]interface{} {
+	x := 5
+	_, x, msgIdB := extract(b, x)
+	return map[string]interface{}{
+		constant.MsgType: constant.QueryFlightDetailReq,
+		constant.MessageId: strings.TrimRight(string(msgIdB), "_"),
+		constant.FlightNo: deserializeInt32(b[x:x+4]),
+	}
+}
+
+func deserQueryFlightDetailResp(b []byte) map[string]interface{} {
+	x := 9
+	_, x, sourceB := extract(b, x)
+	_, x, destB := extract(b, x)
+	return map[string]interface{}{
+		constant.MsgType: constant.QueryFlightDetailResp,
+		constant.FlightNo: deserializeInt32(b[5:9]),
+		constant.Source: strings.TrimRight(string(sourceB), "_"),
+		constant.Destination: strings.TrimRight(string(destB), "_"),
+		constant.AvailableSeats: deserializeInt32(b[x:x+4]),
 	}
 }
 

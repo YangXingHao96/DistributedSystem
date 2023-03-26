@@ -74,6 +74,9 @@ func serializeInt32(x int) []byte {
 }
 
 func deserializeInt32(b []byte) int {
+	for len(b) < 4 {
+		b = append(b, 0)
+	}
 	return int(binary.LittleEndian.Uint32(b))
 }
 

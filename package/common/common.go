@@ -320,7 +320,7 @@ func deserReservationReq(b []byte) map[string]interface{} {
 func deserReservationResp(b []byte) map[string]interface{} {
 	_, _, ackB := extract(b, 5)
 	return map[string]interface{}{
-		constant.MsgType: constant.MakeReservationResp,
+		constant.MsgType: deserializeInt32(b[4:5]),
 		constant.Ack: strings.TrimRight(string(ackB), "_"),
 	}
 }

@@ -1,14 +1,14 @@
 package constant
 
 const (
-	QueryFlights      = "getFlights"
-	QueryFlightDetail = "queryFlightDetails"
-	AddFlight         = "addFlight"
-	MakeReservation   = "makeReservation"
-	CancelReservation = "cancelReservation"
+	QueryFlights = iota
+	QueryFlightDetail
+	AddFlight
+	MakeReservation
+	CancelReservation
 )
 
 const (
-	BroadCast   = "broadcast"
+	Broadcast   = "broadcast"
 	ErrorHeader = "error"
 )

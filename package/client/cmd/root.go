@@ -27,6 +27,10 @@ var supportedCmds = map[string]cmdsPromptFormat{
 		Prompt: promptGetFlightDetail,
 		Fmt: fmtGetFlightDetail,
 	},
+	"Add a flight": {
+		Prompt: promptAddFlight,
+		Fmt: fmtAddFlight,
+	},
 }
 
 

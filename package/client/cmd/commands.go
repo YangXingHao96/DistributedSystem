@@ -266,3 +266,46 @@ func promptMakeReservation() ([]byte, error) {
 	data := common.NewSerializeMakeReservationReq(shortuuid.New(), x, seatCnt)
 	return data, nil
 }
+
+func promptCancelReservation() ([]byte, error) {
+	prompt := promptui.Prompt{
+		Label:    "Flight ID",
+		Validate: func(input string) error {
+			_, err := strconv.ParseInt(input, 10, 32)
+			if err != nil {
+				return errors.New("invalid number")
+			}
+			return nil
+		},
+	}
+	flightId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	x, err := strconv.Atoi(flightId)
+	if err != nil {
+		return nil, err
+	}
+
+	prompt = promptui.Prompt{
+		Label:    "Number of seats to cancel",
+		Validate: func(input string) error {
+			_, err := strconv.ParseInt(input, 10, 32)
+			if err != nil {
+				return errors.New("invalid number")
+			}
+			return nil
+		},
+	}
+	seatCntStr, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	seatCnt, err := strconv.Atoi(seatCntStr)
+	if err != nil {
+		return nil, err
+	}
+
+	data := common.NewSerializeCancelReservationReq(shortuuid.New(), x, seatCnt)
+	return data, nil
+}

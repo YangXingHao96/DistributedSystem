@@ -37,5 +37,8 @@ func fmtGetFlightIdBySourceDest(resp map[string]interface{}) string {
 	for _, f := range flightNo {
 		res = append(res, strconv.Itoa(f))
 	}
+	if len(res) == 0 {
+		res = append(res, "No matching entry.")
+	}
 	return fmt.Sprintf("Flight IDs: %s\n", strings.Join(res, ","))
 }

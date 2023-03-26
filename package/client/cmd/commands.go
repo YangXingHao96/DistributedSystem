@@ -78,5 +78,5 @@ func fmtGetFlightDetail(resp map[string]interface{}) string {
 	source := resp[constant.Source]
 	dest := resp[constant.Source]
 	availSeats := resp[constant.AvailableSeats].(int)
-	return fmt.Sprintf(`Flight ID: %d\nSource: %s\nDestination: %s\nAvailable Seats left: %d`, flightNo, source, dest, availSeats)
+	return fmt.Sprintf("Flight ID: %d\nSource: %s\nDestination: %s\nAvailable Seats left: %d", flightNo, source, dest, availSeats)
 }

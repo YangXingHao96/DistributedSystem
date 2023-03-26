@@ -58,13 +58,50 @@ func NewSerializeQueryFlightDetailResp(flightNo int, source string, dest string,
 	serDestSize := serializeInt32(len(serDest))
 
 	buf := make([]byte, 0)
-	buf = append(buf, serializeInt32(constant.QueryFlightDetailReq)[0])
+	buf = append(buf, serializeInt32(constant.QueryFlightDetailResp)[0])
 	buf = append(buf, serializeInt32(flightNo)...)
 	buf = append(buf, serSourceSize...)
 	buf = append(buf, serSource...)
 	buf = append(buf, serDestSize...)
 	buf = append(buf, serDest...)
 	buf = append(buf, serializeInt32(availSeats)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeAddFlightReq(msgId string, flightNo int, source string, dest string, depHr int, depMin int, airFare float32, totalSeatCount int, currentSeatCount int) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.AddFlightReq)[0])
+	serMsgId := serializeStr(msgId)
+	serMsgIdSize := serializeInt32(len(serMsgId))
+	buf = append(buf, serMsgIdSize...)
+	buf = append(buf, serMsgId...)
+	buf = append(buf, serializeInt32(flightNo)...)
+
+	serSource := serializeStr(source)
+	serSourceSize := serializeInt32(len(serSource))
+	serDest := serializeStr(dest)
+	serDestSize := serializeInt32(len(serDest))
+	buf = append(buf, serSourceSize...)
+	buf = append(buf, serSource...)
+	buf = append(buf, serDestSize...)
+	buf = append(buf, serDest...)
+	buf = append(buf, serializeInt32(depHr)[0])
+	buf = append(buf, serializeInt32(depMin)[0])
+	buf = append(buf, serializeFloat32(airFare)...)
+	buf = append(buf, serializeInt32(totalSeatCount)...)
+	buf = append(buf, serializeInt32(currentSeatCount)...)
+
+	return append(serializeInt32(len(buf)+4), buf...)
+}
+
+func NewSerializeAddFlightResp(ack string) []byte {
+	buf := make([]byte, 0)
+	buf = append(buf, serializeInt32(constant.AddFlightResp)[0])
+	serAck := serializeStr(ack)
+	serAckSize := serializeInt32(len(serAck))
+	buf = append(buf, serAckSize...)
+	buf = append(buf, serAck...)
 
 	return append(serializeInt32(len(buf)+4), buf...)
 }
@@ -112,6 +149,16 @@ func deserializeInt32(b []byte) int {
 		t = append(t, 0)
 	}
 	return int(binary.LittleEndian.Uint32(t))
+}
+
+func serializeFloat32(x float32) []byte {
+	var buf [8]byte
+	binary.LittleEndian.PutUint32(buf[:], math.Float32bits(x))
+	return buf[:]
+}
+
+func deserializeFloat32(b []byte) float32 {
+	return math.Float32frombits(binary.LittleEndian.Uint32(b))
 }
 
 func deserQueryFlightReq(b []byte) map[string]interface{} {

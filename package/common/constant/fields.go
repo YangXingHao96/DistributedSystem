@@ -1,10 +1,7 @@
 package constant
 
 const (
-	RequestType  = "requestType"
-	ResponseType = "responseType"
-	RequestBody  = "requestBody"
-	ResponseBody = "responseBody"
+	MsgType  = "messageType"
 	MessageId    = "messageId"
 )
 

@@ -12,7 +12,7 @@ import (
 
 type cmdsPromptFormat struct {
 	Prompt func() ([]byte, error)
-	Fmt func(resp map[string]string)
+	Fmt func(resp map[string]interface{})
 }
 
 var supportedCmds = map[string]cmdsPromptFormat{

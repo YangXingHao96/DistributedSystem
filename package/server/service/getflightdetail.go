@@ -8,7 +8,7 @@ import (
 	"github.com/YangXingHao96/DistributedSystem/package/server/database"
 )
 
-func GetFlightDetails(req map[string]interface{}, db *sql.DB) ([]byte, error) {
+func GetFlightDetails(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int) ([]byte, error) {
 	flightNo, _ := req[constant.FlightNo].(int)
 	flightDetails, err := database.GetFlightDetail(db, flightNo)
 	if err != nil {

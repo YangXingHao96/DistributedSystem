@@ -4,17 +4,20 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/YangXingHao96/DistributedSystem/package/common"
+	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/YangXingHao96/DistributedSystem/package/server/service"
 	"net"
 )
 
 func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 	// Listen for incoming packets on port 8080
+
 	udpServer, err := net.ListenPacket("udp", "localhost:2222")
 	if err != nil {
 		panic(err)
 	}
 	defer udpServer.Close()
+	reservationMap := map[string]map[int]int{}
 	for {
 		buf := make([]byte, 1024)
 		n, addr, err := udpServer.ReadFrom(buf)
@@ -24,9 +27,15 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
 		request := common.Deserialize(buf[:n])
-		resp, err := service.HandleIncomingRequest(request, db)
+		request[constant.Address] = addr.String()
+		resp, err := service.HandleIncomingRequest(request, db, reservationMap)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
+			errResp := service.HandleError(err)
+			if _, err := udpServer.WriteTo(errResp, addr); err != nil {
+				fmt.Printf("An error has occured: %v\n", err)
+			}
+
 		} else {
 			if _, err := udpServer.WriteTo(resp, addr); err != nil {
 				fmt.Printf("An error has occured: %v\n", err)

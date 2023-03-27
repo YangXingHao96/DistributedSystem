@@ -8,7 +8,7 @@ import (
 	"github.com/YangXingHao96/DistributedSystem/package/server/database"
 )
 
-func AddFlight(req map[string]interface{}, db *sql.DB) ([]byte, error) {
+func AddFlight(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int) ([]byte, error) {
 	flightNo, _ := req[constant.FlightNo].(int)
 	source := fmt.Sprintf("%v", req[constant.Source])
 	destination := fmt.Sprintf("%v", req[constant.Destination])

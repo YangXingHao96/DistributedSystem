@@ -44,8 +44,8 @@ func (u *UdpConn) Write(b []byte) (n int, err error) {
 }
 
 // Apply read deadline for timeouts
-func (u *UdpConn) Read(b []byte) (int, error) {
-	if err := u.x.SetReadDeadline(time.Now().Add(time.Duration(ReadTimeoutMs) * time.Millisecond)); err != nil {
+func (u *UdpConn) Read(b []byte, readDeadline time.Time) (int, error) {
+	if err := u.x.SetReadDeadline(readDeadline); err != nil {
 		return 0, ErrFailedToSetReadDeadline
 	}
 	return u.x.Read(b)

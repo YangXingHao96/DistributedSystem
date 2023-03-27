@@ -48,7 +48,7 @@ func TestMustInit(t *testing.T) {
 			}
 
 			buffer := make([]byte, 1024)
-			mLen, err := conn.Read(buffer)
+			mLen, err := conn.Read(buffer, time.Now().Add(time.Minute))
 			if err != nil {
 				t.Fatal(err)
 			}

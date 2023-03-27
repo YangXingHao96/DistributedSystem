@@ -19,40 +19,49 @@ import (
 
 type cmdsPromptFormat struct {
 	Prompt func() ([]byte, error)
-	Fmt func(resp map[string]interface{}) string
+	Fmt    func(resp map[string]interface{}) string
 }
+
+const (
+	queryFlightPromptStr     = "Query flight identifier(s) by specifying the source and destination places"
+	queryFlightByIdStr       = "Query flight details by its ID"
+	addFlightPromptStr       = "Add a flight"
+	makeResPromptStr         = "Make a flight reservation"
+	cancelResPromptStr       = "Cancel a flight reservation"
+	checkResPromptStr        = "Check your reservation for a flight"
+	registerMonitorPromptStr = "Subscribe to a flight for live update on seat availability"
+)
 
 var supportedCmds = map[string]cmdsPromptFormat{
-	"Query flight identifier(s) by specifying the source and destination places": {
+	queryFlightPromptStr: {
 		Prompt: promptGetFlightIdBySourceDest,
-		Fmt: fmtGetFlightIdBySourceDest,
+		Fmt:    fmtGetFlightIdBySourceDest,
 	},
-	"Query flight details by its ID": {
+	queryFlightByIdStr: {
 		Prompt: promptGetFlightDetail,
-		Fmt: fmtGetFlightDetail,
+		Fmt:    fmtGetFlightDetail,
 	},
-	"Add a flight": {
+	addFlightPromptStr: {
 		Prompt: promptAddFlight,
-		Fmt: fmtSimpleAck,
+		Fmt:    fmtSimpleAck,
 	},
-	"Make a flight reservation": {
+	makeResPromptStr: {
 		Prompt: promptMakeReservation,
-		Fmt: fmtSimpleAck,
+		Fmt:    fmtSimpleAck,
 	},
-	"Cancel a flight reservation": {
+	cancelResPromptStr: {
 		Prompt: promptCancelReservation,
-		Fmt: fmtSimpleAck,
+		Fmt:    fmtSimpleAck,
 	},
-	"Check your reservation for a flight": {
+	checkResPromptStr: {
 		Prompt: promptGetReservationForFlight,
-		Fmt: fmtGetReservationForFlight,
+		Fmt:    fmtGetReservationForFlight,
 	},
-	"Subscribe to a flight for live update on seat availability": {
+	registerMonitorPromptStr: {
 		Prompt: promptRegisterMonitorReq,
-		Fmt: fmtMonitorFlightResp,
+		Fmt:    fmtMonitorFlightResp,
 	},
 }
-
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -101,6 +110,14 @@ func start(cmd *cobra.Command, args []string) {
 		s.Color("blue")
 		// measure execution time
 		start := time.Now()
+		readDuration := client.ReadTimeoutMs
+		if c == registerMonitorPromptStr {
+			monitorDurationSec := common.Deserialize(data)[constant.MonitorIntervalSec].(int)
+			if monitorDurationSec*1000 > readDuration { // client allowed to read longer than default
+				readDuration = monitorDurationSec * 1000
+			}
+		}
+		readDeadline := time.Now().Add(time.Duration(readDuration) * time.Millisecond)
 		s.Start()
 		// read and write to server
 		if _, err := conn.Write(data); err != nil {
@@ -110,10 +127,10 @@ func start(cmd *cobra.Command, args []string) {
 		for keepReading {
 			keepReading = false
 			buffer := make([]byte, 1024)
-			mLen, err := conn.Read(buffer)
+			mLen, err := conn.Read(buffer, readDeadline)
 			if err != nil {
 				if isTimeoutError(err) {
-					s.FinalMSG = fmt.Sprintf("\nwarning: connection to server timed out, exceeded threshold: %d (ms).\n", client.ReadTimeoutMs)
+					s.FinalMSG = fmt.Sprintf("\nConnection to server ended, exceeded read deadline: %d (ms).\n", readDuration)
 					break
 				}
 				fmt.Println("Error reading:", err.Error())
@@ -153,6 +170,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringVar(&client.ServerHost, "host", "localhost", "the server host (defaults to localhost)")
 	rootCmd.PersistentFlags().StringVar(&client.ServerPort, "port", "2222", "the server port (defaults to 2222)")
+	rootCmd.PersistentFlags().IntVar(&client.ReadTimeoutMs, "readTimeout", 60000, "the server port (defaults to 2222)")
 }
 
 func isTimeoutError(err error) bool {

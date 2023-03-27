@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/YangXingHao96/DistributedSystem/package/client"
 	"github.com/YangXingHao96/DistributedSystem/package/common"
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/lithammer/shortuuid/v4"
@@ -387,7 +386,7 @@ func promptGetReservationForFlight() ([]byte, error) {
 func fmtGetReservationForFlight(resp map[string]interface{}) string {
 	flightNo := resp[constant.FlightNo].(int)
 	seatCnt := resp[constant.SeatCnt].(int)
-	return fmt.Sprintf("Flight ID: %s\nSeats reserved: %d\n", flightNo, seatCnt)
+	return fmt.Sprintf("Flight ID: %d\nSeats reserved: %d\n", flightNo, seatCnt)
 }
 
 func promptRegisterMonitorReq() ([]byte, error) {
@@ -413,12 +412,9 @@ func promptRegisterMonitorReq() ([]byte, error) {
 	prompt = promptui.Prompt{
 		Label: "Monitor time interval (in seconds)",
 		Validate: func(input string) error {
-			x, err := strconv.ParseInt(input, 10, 32)
+			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
 				return errors.New("invalid number")
-			}
-			if int(x)*1000 >= client.ReadTimeoutMs {
-				return errors.New(fmt.Sprintf("monitor interval cannot be longer than configured read timeout: %d seconds", client.ReadTimeoutMs/1000))
 			}
 			return nil
 		},
@@ -452,12 +448,12 @@ func fmtMonitorFlightResp(resp map[string]interface{}) string {
 	if msgType == constant.MonitorUpdateResp {
 		flightNo := resp[constant.FlightNo].(int)
 		seatsAvailable := resp[constant.AvailableSeats].(int)
-		return fmt.Sprintf("❗Flight %d seat availability alert\nNew seat availability: %d\n", flightNo, seatsAvailable)
+		return fmt.Sprintf("\n❗ Flight %d seat availability alert\nNew seat availability: %d\n", flightNo, seatsAvailable)
 	}
 
 	return fmt.Sprintf("Stopped monitoring. Reason from server: %s", resp[constant.Ack].(string))
 }
 
 func fmtGeneralErrResp(resp map[string]interface{}) string {
-	return fmt.Sprintf("Something went wrong processing your request. Reason from server: %s", resp[constant.ErrMessage].(string))
+	return fmt.Sprintf("Something went wrong processing your request. Reason from server: %s\n", resp[constant.ErrMessage].(string))
 }

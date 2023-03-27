@@ -467,7 +467,7 @@ func promptRegisterMonitorReq() ([]byte, error) {
 func fmtMonitorFlightResp(resp map[string]interface{}) string {
 	msgType := resp[constant.MsgType].(int)
 	if msgType == constant.MonitorUpdateResp {
-		flightNo := resp[constant.FlightNo].(string)
+		flightNo := resp[constant.FlightNo].(int)
 		seatsAvailable := resp[constant.AvailableSeats].(int)
 		return fmt.Sprintf("❗Flight %d seat availability alert\nNew seat availability: %d\n", flightNo, seatsAvailable)
 	}

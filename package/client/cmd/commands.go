@@ -28,7 +28,18 @@ func promptGetFlightIdBySourceDest() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeGetFlightIdBySourceDest(shortuuid.New(), source, dest)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+	data := common.NewSerializeGetFlightIdBySourceDest(msgId, source, dest)
 	return data, nil
 }
 
@@ -64,7 +75,19 @@ func promptGetFlightDetail() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeQueryFlightDetailReq(shortuuid.New(), x)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+
+	data := common.NewSerializeQueryFlightDetailReq(msgId, x)
 	return data, nil
 }
 
@@ -216,7 +239,19 @@ func promptAddFlight() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeAddFlightReq(shortuuid.New(), x, source, dest, depHr, depMin, float32(airFare), ttlSeatCnt, curSeatCnt)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+
+	data := common.NewSerializeAddFlightReq(msgId, x, source, dest, depHr, depMin, float32(airFare), ttlSeatCnt, curSeatCnt)
 	return data, nil
 }
 
@@ -263,7 +298,19 @@ func promptMakeReservation() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeMakeReservationReq(shortuuid.New(), x, seatCnt)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+
+	data := common.NewSerializeMakeReservationReq(msgId, x, seatCnt)
 	return data, nil
 }
 
@@ -306,7 +353,19 @@ func promptCancelReservation() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeCancelReservationReq(shortuuid.New(), x, seatCnt)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+
+	data := common.NewSerializeCancelReservationReq(msgId, x, seatCnt)
 	return data, nil
 }
 
@@ -330,7 +389,18 @@ func promptGetReservationForFlight() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeGetReservationForFlightReq(shortuuid.New(), x)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+	data := common.NewSerializeGetReservationForFlightReq(msgId, x)
 	return data, nil
 }
 
@@ -379,7 +449,18 @@ func promptRegisterMonitorReq() ([]byte, error) {
 		return nil, err
 	}
 
-	data := common.NewSerializeRegisterForMonitorReq(shortuuid.New(), x, monitorIntervalSec)
+	prompt = promptui.Prompt{
+		Label:    "Message Request ID (Optional, leave blank if unsure)",
+	}
+	msgId, err := prompt.Run()
+	if err != nil {
+		return nil, err
+	}
+	if msgId == "" {
+		msgId = shortuuid.New()
+	}
+
+	data := common.NewSerializeRegisterForMonitorReq(msgId, x, monitorIntervalSec)
 	return data, nil
 }
 

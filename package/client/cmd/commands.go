@@ -8,13 +8,15 @@ import (
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/lithammer/shortuuid/v4"
 	"github.com/manifoldco/promptui"
+	"math"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func promptGetFlightIdBySourceDest() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight source",
+		Label: "Flight source",
 	}
 	source, err := prompt.Run()
 	if err != nil {
@@ -22,7 +24,7 @@ func promptGetFlightIdBySourceDest() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Flight destination",
+		Label: "Flight destination",
 	}
 	dest, err := prompt.Run()
 	if err != nil {
@@ -30,7 +32,7 @@ func promptGetFlightIdBySourceDest() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {
@@ -58,7 +60,7 @@ func fmtGetFlightIdBySourceDest(resp map[string]interface{}) string {
 
 func promptGetFlightDetail() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight ID",
+		Label: "Flight ID",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -77,7 +79,7 @@ func promptGetFlightDetail() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {
@@ -86,7 +88,6 @@ func promptGetFlightDetail() ([]byte, error) {
 	if msgId == "" {
 		msgId = shortuuid.New()
 	}
-
 
 	data := common.NewSerializeQueryFlightDetailReq(msgId, x)
 	return data, nil
@@ -98,14 +99,18 @@ func fmtGetFlightDetail(resp map[string]interface{}) string {
 		return "No matching entry found for given flight id"
 	}
 	source := resp[constant.Source]
-	dest := resp[constant.Source]
+	dest := resp[constant.Destination]
 	availSeats := resp[constant.AvailableSeats].(int)
-	return fmt.Sprintf("Flight ID: %d\nSource: %s\nDestination: %s\nAvailable Seats left: %d\n", flightNo, source, dest, availSeats)
+	flightTime := resp[constant.FlightTime].(int)
+	layout := "01/02/2006 3:04:05 PM"
+	flightTimeStr := time.Unix(int64(flightTime), 0).UTC().Format(layout)
+	airFare := resp[constant.AirFare].(float32)
+	return fmt.Sprintf("Flight ID: %d\nSource: %s\nDestination: %s\nAvailable Seats left: %d\nFlight Time: %s\nAir Fare: %.2f", flightNo, source, dest, availSeats, flightTimeStr, airFare)
 }
 
 func promptAddFlight() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight ID",
+		Label: "Flight ID",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -124,7 +129,7 @@ func promptAddFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Flight source",
+		Label: "Flight source",
 	}
 	source, err := prompt.Run()
 	if err != nil {
@@ -132,59 +137,36 @@ func promptAddFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Flight destination",
+		Label: "Flight destination",
 	}
 	dest, err := prompt.Run()
 	if err != nil {
 		return nil, err
 	}
 
+	layout := "01/02/2006 3:04:05 PM"
 	prompt = promptui.Prompt{
-		Label:    "Flight Departure Hour",
+		Label: "Flight Departure Time in the format \"DD/MM/YYYY hr:min:second AM/PM\", Eg: 01/02/2006 3:04:05 PM",
 		Validate: func(input string) error {
-			x, err := strconv.ParseInt(input, 10, 32)
+			t, err := time.Parse(layout, input)
 			if err != nil {
-				return errors.New("invalid number")
+				return err
 			}
-			if x < 0 || x > 24 {
-				return errors.New("hour must be in range [0,23]")
+			if t.Unix() > math.MaxInt32 {
+				return errors.New("cannot store this date, try something before 2038")
 			}
 			return nil
 		},
 	}
-	depHrStr, err := prompt.Run()
+	depTimeStr, err := prompt.Run()
 	if err != nil {
 		return nil, err
 	}
-	depHr, err := strconv.Atoi(depHrStr)
-	if err != nil {
-		return nil, err
-	}
+	t, err := time.Parse(layout, depTimeStr)
+	depTime := t.Unix()
 
 	prompt = promptui.Prompt{
-		Label:    "Flight Departure Minute",
-		Validate: func(input string) error {
-			x, err := strconv.ParseInt(input, 10, 32)
-			if err != nil {
-				return errors.New("invalid number")
-			}
-			if x < 0 || x > 60 {
-				return errors.New("minute must be in range [0,59]")
-			}
-			return nil
-		},
-	}
-	depMinStr, err := prompt.Run()
-	if err != nil {
-		return nil, err
-	}
-	depMin, err := strconv.Atoi(depMinStr)
-	if err != nil {
-		return nil, err
-	}
-
-	prompt = promptui.Prompt{
-		Label:    "Flight Airfare",
+		Label: "Flight Airfare",
 		Validate: func(input string) error {
 			_, err := strconv.ParseFloat(input, 32)
 			if err != nil {
@@ -203,7 +185,7 @@ func promptAddFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Total seat count",
+		Label: "Total seat count",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -222,7 +204,7 @@ func promptAddFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Current number of seats booked",
+		Label: "Current number of seats booked",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -241,7 +223,7 @@ func promptAddFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {
@@ -251,8 +233,7 @@ func promptAddFlight() ([]byte, error) {
 		msgId = shortuuid.New()
 	}
 
-
-	data := common.NewSerializeAddFlightReq(msgId, x, source, dest, depHr, depMin, float32(airFare), ttlSeatCnt, curSeatCnt)
+	data := common.NewSerializeAddFlightReq(msgId, x, source, dest, int(depTime), float32(airFare), ttlSeatCnt, curSeatCnt)
 	return data, nil
 }
 
@@ -262,7 +243,7 @@ func fmtSimpleAck(resp map[string]interface{}) string {
 
 func promptMakeReservation() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight ID",
+		Label: "Flight ID",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -281,7 +262,7 @@ func promptMakeReservation() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Number of seats to reserve",
+		Label: "Number of seats to reserve",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -300,7 +281,7 @@ func promptMakeReservation() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {
@@ -309,7 +290,6 @@ func promptMakeReservation() ([]byte, error) {
 	if msgId == "" {
 		msgId = shortuuid.New()
 	}
-
 
 	data := common.NewSerializeMakeReservationReq(msgId, x, seatCnt)
 	return data, nil
@@ -317,7 +297,7 @@ func promptMakeReservation() ([]byte, error) {
 
 func promptCancelReservation() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight ID",
+		Label: "Flight ID",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -336,7 +316,7 @@ func promptCancelReservation() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Number of seats to cancel",
+		Label: "Number of seats to cancel",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -355,7 +335,7 @@ func promptCancelReservation() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {
@@ -365,14 +345,13 @@ func promptCancelReservation() ([]byte, error) {
 		msgId = shortuuid.New()
 	}
 
-
 	data := common.NewSerializeCancelReservationReq(msgId, x, seatCnt)
 	return data, nil
 }
 
 func promptGetReservationForFlight() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight ID",
+		Label: "Flight ID",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -391,7 +370,7 @@ func promptGetReservationForFlight() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {
@@ -413,7 +392,7 @@ func fmtGetReservationForFlight(resp map[string]interface{}) string {
 
 func promptRegisterMonitorReq() ([]byte, error) {
 	prompt := promptui.Prompt{
-		Label:    "Flight ID",
+		Label: "Flight ID",
 		Validate: func(input string) error {
 			_, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
@@ -432,14 +411,14 @@ func promptRegisterMonitorReq() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Monitor time interval (in seconds)",
+		Label: "Monitor time interval (in seconds)",
 		Validate: func(input string) error {
 			x, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
 				return errors.New("invalid number")
 			}
-			if int(x) * 1000 >= client.ReadTimeoutMs {
-				return errors.New(fmt.Sprintf("monitor interval cannot be longer than configured read timeout: %d seconds", client.ReadTimeoutMs / 1000))
+			if int(x)*1000 >= client.ReadTimeoutMs {
+				return errors.New(fmt.Sprintf("monitor interval cannot be longer than configured read timeout: %d seconds", client.ReadTimeoutMs/1000))
 			}
 			return nil
 		},
@@ -454,7 +433,7 @@ func promptRegisterMonitorReq() ([]byte, error) {
 	}
 
 	prompt = promptui.Prompt{
-		Label:    "Message Request ID (Optional, leave blank if unsure)",
+		Label: "Message Request ID (Optional, leave blank if unsure)",
 	}
 	msgId, err := prompt.Run()
 	if err != nil {

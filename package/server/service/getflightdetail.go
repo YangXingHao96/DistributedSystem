@@ -20,9 +20,11 @@ func GetFlightDetails(req map[string]interface{}, db *sql.DB, reservationMap map
 		flightDetails.SeatAvailability = 0
 		flightDetails.Source = ""
 		flightDetails.Destination = ""
+		flightDetails.FlightTime = 0
+		flightDetails.AirFare = 0
 	}
 	fmt.Printf("flight detail retrieved, flight number: %v, flight source: %v, flight destination: %v, flight seat availability: %v\n", flightDetails.FlightNo, flightDetails.Source, flightDetails.Destination, flightDetails.SeatAvailability)
-	resp := common.NewSerializeQueryFlightDetailResp(flightDetails.FlightNo, flightDetails.Source, flightDetails.Destination, flightDetails.SeatAvailability)
+	resp := common.NewSerializeQueryFlightDetailResp(flightDetails.FlightNo, flightDetails.Source, flightDetails.Destination, flightDetails.SeatAvailability, flightDetails.FlightTime, flightDetails.AirFare)
 	responses := map[string][]byte{
 		userAddr: resp,
 	}

@@ -21,8 +21,7 @@ func GetFlights(db *sql.DB, source, destination string) ([]int, error) {
 	var flightIds []int
 	for rows.Next() {
 		var flightInfo dbModel.FlightInformation
-		if err := rows.Scan(&flightInfo.FlightNo, &flightInfo.Source, &flightInfo.Destination, &flightInfo.DepartureHour,
-			&flightInfo.DepartureMin, &flightInfo.AirFare, &flightInfo.MaxCnt, &flightInfo.CurrentCnt); err != nil {
+		if err := rows.Scan(&flightInfo.FlightNo, &flightInfo.Source, &flightInfo.Destination, &flightInfo.FlightTime, &flightInfo.AirFare, &flightInfo.MaxCnt, &flightInfo.CurrentCnt); err != nil {
 			return nil, err
 		}
 		flightIds = append(flightIds, flightInfo.FlightNo)
@@ -46,8 +45,7 @@ func GetFlightDetail(db *sql.DB, flightNo int) (*model.FlightDetail, error) {
 	var flightDetail model.FlightDetail
 	for rows.Next() {
 		var flightInfo dbModel.FlightInformation
-		if err := rows.Scan(&flightInfo.FlightNo, &flightInfo.Source, &flightInfo.Destination, &flightInfo.DepartureHour,
-			&flightInfo.DepartureMin, &flightInfo.AirFare, &flightInfo.MaxCnt, &flightInfo.CurrentCnt); err != nil {
+		if err := rows.Scan(&flightInfo.FlightNo, &flightInfo.Source, &flightInfo.Destination, &flightInfo.FlightTime, &flightInfo.AirFare, &flightInfo.MaxCnt, &flightInfo.CurrentCnt); err != nil {
 			return nil, err
 		}
 		flightDetail.FlightNo = flightInfo.FlightNo
@@ -56,6 +54,8 @@ func GetFlightDetail(db *sql.DB, flightNo int) (*model.FlightDetail, error) {
 		flightDetail.SeatAvailability = flightInfo.MaxCnt - flightInfo.CurrentCnt
 		flightDetail.TotalSeats = flightInfo.MaxCnt
 		flightDetail.CurrentSeats = flightInfo.CurrentCnt
+		flightDetail.FlightTime = flightInfo.FlightTime
+		flightDetail.AirFare = flightInfo.AirFare
 	}
 	return &flightDetail, nil
 }
@@ -106,9 +106,9 @@ func CancelReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
 	return newSeatCnt, nil
 }
 
-func AddFlight(db *sql.DB, flightNo, departureHour, departureMin, maxCnt, curCnt int, source, destination string, airFare float32) error {
-	insertStatement := "INSERT INTO Flight (flight_number, source, destination, departure_hour, departure_min, air_fare, max_seat_cnt, current_seat_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
-	_, err := db.Exec(insertStatement, flightNo, source, destination, departureHour, departureMin, airFare, maxCnt, curCnt)
+func AddFlight(db *sql.DB, flightNo, flightTime, maxCnt, curCnt int, source, destination string, airFare float32) error {
+	insertStatement := "INSERT INTO Flight (flight_number, source, destination, flight_time, air_fare, max_seat_cnt, current_seat_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+	_, err := db.Exec(insertStatement, flightNo, source, destination, flightTime, airFare, maxCnt, curCnt)
 	if err != nil {
 		return err
 	}

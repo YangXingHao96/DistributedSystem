@@ -7,9 +7,10 @@ import (
 	"github.com/YangXingHao96/DistributedSystem/package/common"
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/YangXingHao96/DistributedSystem/package/server/database"
+	"time"
 )
 
-func GetReservation(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int) ([]byte, error) {
+func GetReservation(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, error) {
 	userAddr := fmt.Sprintf("%v", req[constant.Address])
 	flightNo, _ := req[constant.FlightNo].(int)
 	flightDetail, err := database.GetFlightDetail(db, flightNo)
@@ -31,6 +32,9 @@ func GetReservation(req map[string]interface{}, db *sql.DB, reservationMap map[s
 	}
 	resp := common.NewSerializeGetReservationForFlightResp(flightNo, reservationCnt)
 
-	return resp, nil
+	responses := map[string][]byte{
+		userAddr: resp,
+	}
+	return responses, nil
 
 }

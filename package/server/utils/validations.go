@@ -13,6 +13,7 @@ var Validators = map[int]func(map[string]interface{}) error{
 	constant.MakeReservationReq:         validateMakeReservationRequest,
 	constant.CancelReservationReq:       validateCancelReservationRequest,
 	constant.GetReservationForFlightReq: validateGetReservationRequest,
+	constant.RegisterForMonitorReq:      validateRegisterForMonitor,
 }
 
 func ValidateMessageId(req map[string]interface{}) error {
@@ -165,6 +166,26 @@ func validateGetReservationRequest(req map[string]interface{}) error {
 	}
 	if reflect.TypeOf(req[constant.FlightNo]).Kind() != reflect.Int {
 		return errors.New("request getReservation flight number not of type int")
+	}
+	return nil
+}
+
+func validateRegisterForMonitor(req map[string]interface{}) error {
+	err := ValidateMessageId(req)
+	if err != nil {
+		return err
+	}
+	if _, ok := req[constant.FlightNo]; !ok {
+		return errors.New("request registerForMonitor flight number cannot be empty")
+	}
+	if reflect.TypeOf(req[constant.FlightNo]).Kind() != reflect.Int {
+		return errors.New("request registerForMonitor flight number not of type int")
+	}
+	if _, ok := req[constant.MonitorIntervalSec]; !ok {
+		return errors.New("request registerForMonitor monitor interval cannot be empty")
+	}
+	if reflect.TypeOf(req[constant.MonitorIntervalSec]).Kind() != reflect.Int {
+		return errors.New("request registerForMonitor monitor interval not of type int")
 	}
 	return nil
 }

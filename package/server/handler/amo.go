@@ -7,6 +7,7 @@ import (
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/YangXingHao96/DistributedSystem/package/server/service"
 	"net"
+	"time"
 )
 
 func HandleUDPRequestAtMostOnce(db *sql.DB) {
@@ -18,6 +19,9 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 	}
 	defer udpServer.Close()
 	reservationMap := map[string]map[int]int{}
+	addressToFlightMap := map[string]map[int]time.Time{}
+	flightToAddressMap := map[int]map[string]time.Time{}
+	stringAddressMap := map[string]net.Addr{}
 	for {
 		buf := make([]byte, 1024)
 		n, addr, err := udpServer.ReadFrom(buf)
@@ -28,6 +32,7 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 
 		request := common.Deserialize(buf[:n])
 		request[constant.Address] = addr.String()
+		stringAddressMap[addr.String()] = addr
 		resp, err := service.HandleDuplicateRequest(request, msgIdSet)
 		if resp != nil {
 			fmt.Println("handing repeated request")
@@ -39,12 +44,14 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
 		}
-		resp, err = service.HandleIncomingRequest(request, db, reservationMap)
+		responses, err := service.HandleIncomingRequest(request, db, reservationMap, addressToFlightMap, flightToAddressMap)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
 		} else {
-			if _, err := udpServer.WriteTo(resp, addr); err != nil {
-				fmt.Printf("An error has occured: %v\n", err)
+			for key, value := range responses {
+				if _, err := udpServer.WriteTo(value, stringAddressMap[key]); err != nil {
+					fmt.Printf("An error has occured: %v\n", err)
+				}
 			}
 		}
 	}

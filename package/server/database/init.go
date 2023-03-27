@@ -61,7 +61,7 @@ func isTableExistsError(err error) bool {
 }
 
 func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
-	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    departure_hour INTEGER,\n    departure_min INTEGER,\n    air_fare FLOAT,\n    max_seat_cnt INTEGER,\n    current_seat_cnt INTEGER)"
+	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    flight_time INTEGER,\n  air_fare FLOAT,\n    max_seat_cnt INTEGER,\n    current_seat_cnt INTEGER)"
 	fmt.Printf("Executing creations: %s\n", createTable)
 	_, err := db.Exec(createTable)
 	if err != nil {
@@ -74,8 +74,8 @@ func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
 	}
 
 	for _, flight := range flightSlice {
-		insertFlight := "INSERT INTO Flight (flight_number, source, destination, departure_hour, departure_min, air_fare, max_seat_cnt, current_seat_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
-		_, err := db.Exec(insertFlight, flight.FlightNo, flight.Source, flight.Destination, flight.DepartureHour, flight.DepartureMin, flight.AirFare, flight.MaxCnt, flight.CurrentCnt)
+		insertFlight := "INSERT INTO Flight (flight_number, source, destination, flight_time, air_fare, max_seat_cnt, current_seat_cnt) VALUES ($1,$2,$3,$4,$5,$6,$7)"
+		_, err := db.Exec(insertFlight, flight.FlightNo, flight.Source, flight.Destination, flight.FlightTime, flight.AirFare, flight.MaxCnt, flight.CurrentCnt)
 		if err != nil {
 			pqErr, ok := err.(*pq.Error)
 			if !ok {
@@ -112,21 +112,19 @@ func prepTableData(filePath string) ([]*model.FlightInformation, error) {
 		flightNo, _ := strconv.Atoi(record[0])
 		source := record[1]
 		destionation := record[2]
-		departureHour, _ := strconv.Atoi(record[3])
-		departureMin, _ := strconv.Atoi(record[4])
-		airFare, _ := strconv.ParseFloat(record[5], 32)
+		flightTime, _ := strconv.Atoi(record[3])
+		airFare, _ := strconv.ParseFloat(record[4], 32)
 		airFare32bits := float32(airFare)
-		maxCnt, _ := strconv.Atoi(record[6])
-		curCnt, _ := strconv.Atoi(record[7])
+		maxCnt, _ := strconv.Atoi(record[5])
+		curCnt, _ := strconv.Atoi(record[6])
 		flightInfo := &model.FlightInformation{
-			FlightNo:      flightNo,
-			Source:        source,
-			Destination:   destionation,
-			DepartureHour: departureHour,
-			DepartureMin:  departureMin,
-			AirFare:       airFare32bits,
-			MaxCnt:        maxCnt,
-			CurrentCnt:    curCnt,
+			FlightNo:    flightNo,
+			Source:      source,
+			Destination: destionation,
+			FlightTime:  flightTime,
+			AirFare:     airFare32bits,
+			MaxCnt:      maxCnt,
+			CurrentCnt:  curCnt,
 		}
 		flightSlice = append(flightSlice, flightInfo)
 	}

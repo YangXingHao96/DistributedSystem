@@ -83,17 +83,11 @@ func validateAddFlightRequest(req map[string]interface{}) error {
 	if reflect.TypeOf(req[constant.Destination]).Kind() != reflect.String {
 		return errors.New("request addFlight destination not of type string")
 	}
-	if _, ok := req[constant.DepartureHour]; !ok {
-		return errors.New("request addFlight departure hour cannot be empty")
+	if _, ok := req[constant.FlightTime]; !ok {
+		return errors.New("request flightTime departure hour cannot be empty")
 	}
-	if reflect.TypeOf(req[constant.DepartureHour]).Kind() != reflect.Int {
-		return errors.New("request addFlight departure hour not of type integer")
-	}
-	if _, ok := req[constant.DepartureMin]; !ok {
-		return errors.New("request addFlight departure minute cannot be empty")
-	}
-	if reflect.TypeOf(req[constant.DepartureMin]).Kind() != reflect.Int {
-		return errors.New("request addFlight departure minute not of type integer")
+	if reflect.TypeOf(req[constant.FlightTime]).Kind() != reflect.Int {
+		return errors.New("request flightTime departure minute not of type integer")
 	}
 	if _, ok := req[constant.AirFare]; !ok {
 		return errors.New("request addFlight airfare cannot be empty")

@@ -99,9 +99,13 @@ func fmtGetFlightDetail(resp map[string]interface{}) string {
 		return "No matching entry found for given flight id"
 	}
 	source := resp[constant.Source]
-	dest := resp[constant.Source]
+	dest := resp[constant.Destination]
 	availSeats := resp[constant.AvailableSeats].(int)
-	return fmt.Sprintf("Flight ID: %d\nSource: %s\nDestination: %s\nAvailable Seats left: %d\n", flightNo, source, dest, availSeats)
+	flightTime := resp[constant.FlightTime].(int)
+	layout := "01/02/2006 3:04:05 PM"
+	flightTimeStr := time.Unix(int64(flightTime), 0).UTC().Format(layout)
+	airFare := resp[constant.AirFare].(float32)
+	return fmt.Sprintf("Flight ID: %d\nSource: %s\nDestination: %s\nAvailable Seats left: %d\nFlight Time: %s\nAir Fare: %.2f", flightNo, source, dest, availSeats, flightTimeStr, airFare)
 }
 
 func promptAddFlight() ([]byte, error) {
@@ -142,9 +146,9 @@ func promptAddFlight() ([]byte, error) {
 
 	layout := "01/02/2006 3:04:05 PM"
 	prompt = promptui.Prompt{
-		Label: "Flight Departure Time in the format \"01/02/2006 3:04:05 PM\"",
+		Label: "Flight Departure Time in the format \"DD/MM/YYYY hr:min:second AM/PM\", Eg: 01/02/2006 3:04:05 PM",
 		Validate: func(input string) error {
-			t, err := time.Parse(layout, "02/28/2016 9:03:46 PM")
+			t, err := time.Parse(layout, input)
 			if err != nil {
 				return err
 			}

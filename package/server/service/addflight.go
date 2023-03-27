@@ -13,13 +13,12 @@ func AddFlight(req map[string]interface{}, db *sql.DB, reservationMap map[string
 	flightNo, _ := req[constant.FlightNo].(int)
 	source := fmt.Sprintf("%v", req[constant.Source])
 	destination := fmt.Sprintf("%v", req[constant.Destination])
-	departureHour, _ := req[constant.DepartureHour].(int)
-	departureMin, _ := req[constant.DepartureMin].(int)
+	flightTime, _ := req[constant.FlightTime].(int)
 	totalSeatCnt, _ := req[constant.TotalSeats].(int)
 	currentSeatCnt, _ := req[constant.CurrentSeats].(int)
 	airFare, _ := req[constant.AirFare].(float32)
 	userAddr := fmt.Sprintf("%v", req[constant.Address])
-	err := database.AddFlight(db, flightNo, departureHour, departureMin, totalSeatCnt, currentSeatCnt, source, destination, airFare)
+	err := database.AddFlight(db, flightNo, flightTime, totalSeatCnt, currentSeatCnt, source, destination, airFare)
 	if err != nil {
 		return nil, err
 	}

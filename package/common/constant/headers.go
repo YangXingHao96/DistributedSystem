@@ -18,8 +18,3 @@ const (
 	MonitorBackoffResp
 	GeneralErrResp
 )
-
-const (
-	Broadcast   = "broadcast"
-	ErrorHeader = "error"
-)

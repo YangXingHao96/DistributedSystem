@@ -7,5 +7,5 @@ import (
 
 func main() {
 	db := database.Init()
-	handler.HandleUDPRequestAtLeastOnce(db)
+	handler.HandleUDPRequestAtMostOnce(db)
 }

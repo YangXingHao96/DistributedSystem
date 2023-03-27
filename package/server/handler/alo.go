@@ -24,8 +24,9 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 	stringAddressMap := map[string]net.Addr{}
 
 	for {
-		fmt.Println(addressToFlightMap)
-		fmt.Println(flightToAddressMap)
+		//add these 2 lines to monitor the callback
+		//fmt.Println(addressToFlightMap)
+		//fmt.Println(flightToAddressMap)
 		responses := service.HandleMonitorBackoff(addressToFlightMap, flightToAddressMap)
 		for key, value := range responses {
 			if _, err := udpServer.WriteTo(value, stringAddressMap[key]); err != nil {
@@ -47,7 +48,7 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 		request := common.Deserialize(buf[:n])
 		request[constant.Address] = addr.String()
 		stringAddressMap[addr.String()] = addr
-		responses, err = service.HandleIncomingRequest(request, db, reservationMap, addressToFlightMap, flightToAddressMap)
+		responses, _, err = service.HandleIncomingRequest(request, db, reservationMap, addressToFlightMap, flightToAddressMap)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
 			errResp := service.HandleError(err)

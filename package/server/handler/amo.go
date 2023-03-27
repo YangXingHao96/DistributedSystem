@@ -12,7 +12,7 @@ import (
 
 func HandleUDPRequestAtMostOnce(db *sql.DB) {
 	// Listen for incoming packets on port 8080
-	var msgIdSet = map[string][]byte{}
+	storedResponses := map[string][]byte{}
 	udpServer, err := net.ListenPacket("udp", "localhost:2222")
 	if err != nil {
 		panic(err)
@@ -23,31 +23,56 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 	flightToAddressMap := map[int]map[string]time.Time{}
 	stringAddressMap := map[string]net.Addr{}
 	for {
+		//add these 2 lines to monitor the callback
+		//fmt.Println(addressToFlightMap)
+		//fmt.Println(flightToAddressMap)
+		responses := service.HandleMonitorBackoff(addressToFlightMap, flightToAddressMap)
+		for key, value := range responses {
+			if _, err := udpServer.WriteTo(value, stringAddressMap[key]); err != nil {
+				fmt.Printf("An error has occured: %v\n", err)
+			}
+		}
+		udpServer.SetReadDeadline(time.Now().Add(1 * time.Second))
 		buf := make([]byte, 1024)
 		n, addr, err := udpServer.ReadFrom(buf)
 		if err != nil {
-			panic(err)
+			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+				continue
+			}
+			fmt.Println(err)
+			continue
 		}
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
 		request := common.Deserialize(buf[:n])
 		request[constant.Address] = addr.String()
 		stringAddressMap[addr.String()] = addr
-		resp, err := service.HandleDuplicateRequest(request, msgIdSet)
+		resp, err := service.HandleDuplicateRequest(request, storedResponses)
 		if resp != nil {
-			fmt.Println("handing repeated request")
+			fmt.Println("handling repeated request")
 			if _, err := udpServer.WriteTo(resp, addr); err != nil {
 				fmt.Printf("An error has occured: %v\n", err)
 			}
 			continue
 		}
+		// We will not store the mapping of error response to
 		if err != nil {
+			resp = service.HandleError(err)
 			fmt.Printf("An error has occured: %v\n", err)
+			if _, err := udpServer.WriteTo(resp, addr); err != nil {
+				fmt.Printf("An error has occured: %v\n", err)
+			}
+			continue
 		}
-		responses, err := service.HandleIncomingRequest(request, db, reservationMap, addressToFlightMap, flightToAddressMap)
+		responses, resp, err = service.HandleIncomingRequest(request, db, reservationMap, addressToFlightMap, flightToAddressMap)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)
+			resp = service.HandleError(err)
+			if _, err := udpServer.WriteTo(resp, addr); err != nil {
+				fmt.Printf("An error has occured: %v\n", err)
+			}
 		} else {
+			service.RegisterResponses(request, resp, storedResponses)
 			for key, value := range responses {
 				if _, err := udpServer.WriteTo(value, stringAddressMap[key]); err != nil {
 					fmt.Printf("An error has occured: %v\n", err)

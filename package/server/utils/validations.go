@@ -62,6 +62,8 @@ func validateQueryFlightDetailsRequest(req map[string]interface{}) error {
 
 func validateAddFlightRequest(req map[string]interface{}) error {
 	err := ValidateMessageId(req)
+
+	var ok bool
 	if err != nil {
 		return err
 	}
@@ -95,11 +97,15 @@ func validateAddFlightRequest(req map[string]interface{}) error {
 	if reflect.TypeOf(req[constant.AirFare]).Kind() != reflect.Float32 {
 		return errors.New("request addFlight airfare not of type float32")
 	}
-	if _, ok := req[constant.TotalSeats]; !ok {
+	if _, ok = req[constant.TotalSeats]; !ok {
 		return errors.New("request addFlight total seat counts cannot be empty")
 	}
 	if reflect.TypeOf(req[constant.TotalSeats]).Kind() != reflect.Int {
 		return errors.New("request addFlight total seat counts not of type integer")
+	}
+	totalSeats, _ := req[constant.TotalSeats].(int)
+	if totalSeats <= 0 {
+		return errors.New("request addFlight total seat counts cannot be less than or equal 0")
 	}
 	if _, ok := req[constant.CurrentSeats]; !ok {
 		return errors.New("request addFlight current seat counts cannot be empty")
@@ -107,6 +113,14 @@ func validateAddFlightRequest(req map[string]interface{}) error {
 	if reflect.TypeOf(req[constant.CurrentSeats]).Kind() != reflect.Int {
 		return errors.New("request addFlight current seat counts not of type integer")
 	}
+	currentSeats, _ := req[constant.CurrentSeats].(int)
+	if currentSeats < 0 {
+		return errors.New("request addFlight current seat counts cannot be less than 0")
+	}
+	if currentSeats > totalSeats {
+		return errors.New("request addFlight current seat counts cannot be greater than total seats on flight")
+	}
+
 	return nil
 }
 

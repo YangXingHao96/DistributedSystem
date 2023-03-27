@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func RegisterForMonitor(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, error) {
+func RegisterForMonitor(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, []byte, error) {
 	userAddr := fmt.Sprintf("%v", req[constant.Address])
 	flightNo, _ := req[constant.FlightNo].(int)
 	monitorInterval, _ := req[constant.MonitorIntervalSec].(int)
@@ -22,5 +22,5 @@ func RegisterForMonitor(req map[string]interface{}, db *sql.DB, reservationMap m
 	flightToAddressMap[flightNo][userAddr] = monitorEndDuration
 	fmt.Printf("flight %v has been registered for monitoring for user %v, will be droped at %v\n", flightNo, userAddr, monitorEndDuration)
 	resp := map[string][]byte{}
-	return resp, nil
+	return resp, nil, nil
 }

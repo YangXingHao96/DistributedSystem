@@ -11,7 +11,7 @@ var (
 	ServerHost = "localhost"
 	ServerPort = "2222"
 
-	ReadTimeoutMs = 30000 // in ms
+	ReadTimeoutMs = 60000 // in ms
 )
 
 const ServerType = "udp"

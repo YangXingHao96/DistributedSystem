@@ -8,8 +8,10 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/manifoldco/promptui"
 	"math/rand"
+	"net"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -104,13 +106,16 @@ func start(cmd *cobra.Command, args []string) {
 		if _, err := conn.Write(data); err != nil {
 			panic(err)
 		}
-		executionTime := time.Since(start)
 		keepReading := true
 		for keepReading {
 			keepReading = false
 			buffer := make([]byte, 1024)
 			mLen, err := conn.Read(buffer)
 			if err != nil {
+				if isTimeoutError(err) {
+					s.FinalMSG = fmt.Sprintf("\nwarning: connection to server timed out, exceeded threshold: %d (ms).\n", client.ReadTimeoutMs)
+					break
+				}
 				fmt.Println("Error reading:", err.Error())
 				return
 			}
@@ -130,6 +135,7 @@ func start(cmd *cobra.Command, args []string) {
 				s.FinalMSG = ""
 			}
 		}
+		executionTime := time.Since(start)
 		s.Stop()
 		fmt.Printf("🧰 Total execution time: %d ms\n", executionTime.Milliseconds())
 	}
@@ -147,4 +153,9 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringVar(&client.ServerHost, "host", "localhost", "the server host (defaults to localhost)")
 	rootCmd.PersistentFlags().StringVar(&client.ServerPort, "port", "2222", "the server port (defaults to 2222)")
+}
+
+func isTimeoutError(err error) bool {
+	e, ok := err.(net.Error)
+	return ok && e.Timeout() || strings.Contains(err.Error(), "i/o timeout")
 }

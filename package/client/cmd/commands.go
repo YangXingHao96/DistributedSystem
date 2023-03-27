@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/YangXingHao96/DistributedSystem/package/client"
 	"github.com/YangXingHao96/DistributedSystem/package/common"
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/lithammer/shortuuid/v4"
@@ -433,9 +434,12 @@ func promptRegisterMonitorReq() ([]byte, error) {
 	prompt = promptui.Prompt{
 		Label:    "Monitor time interval (in seconds)",
 		Validate: func(input string) error {
-			_, err := strconv.ParseInt(input, 10, 32)
+			x, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
 				return errors.New("invalid number")
+			}
+			if int(x) * 1000 >= client.ReadTimeoutMs {
+				return errors.New(fmt.Sprintf("monitor interval cannot be longer than configured read timeout: %d seconds", client.ReadTimeoutMs / 1000))
 			}
 			return nil
 		},

@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-func GetFlightDetails(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, error) {
+func GetFlightDetails(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, []byte, error) {
 	flightNo, _ := req[constant.FlightNo].(int)
 	flightDetails, err := database.GetFlightDetail(db, flightNo)
 	userAddr := fmt.Sprintf("%v", req[constant.Address])
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if flightDetails.FlightNo == 0 {
 		flightDetails.SeatAvailability = 0
@@ -26,5 +26,5 @@ func GetFlightDetails(req map[string]interface{}, db *sql.DB, reservationMap map
 	responses := map[string][]byte{
 		userAddr: resp,
 	}
-	return responses, nil
+	return responses, resp, nil
 }

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func AddFlight(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, error) {
+func AddFlight(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, []byte, error) {
 	flightNo, _ := req[constant.FlightNo].(int)
 	source := fmt.Sprintf("%v", req[constant.Source])
 	destination := fmt.Sprintf("%v", req[constant.Destination])
@@ -21,12 +21,15 @@ func AddFlight(req map[string]interface{}, db *sql.DB, reservationMap map[string
 	userAddr := fmt.Sprintf("%v", req[constant.Address])
 	err := database.AddFlight(db, flightNo, departureHour, departureMin, totalSeatCnt, currentSeatCnt, source, destination, airFare)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	ack := fmt.Sprintf("flight number %v added", flightNo)
+	storeMsg := "previous response: " + ack
 	resp := common.NewSerializeAddFlightResp(ack)
+	storeResp := common.NewSerializeAddFlightResp(storeMsg)
 	responses := map[string][]byte{
 		userAddr: resp,
 	}
-	return responses, nil
+
+	return responses, storeResp, nil
 }

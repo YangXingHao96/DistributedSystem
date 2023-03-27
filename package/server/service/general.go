@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var serviceMap = map[int]func(map[string]interface{}, *sql.DB, map[string]map[int]int, map[string]map[int]time.Time, map[int]map[string]time.Time) (map[string][]byte, error){
+var serviceMap = map[int]func(map[string]interface{}, *sql.DB, map[string]map[int]int, map[string]map[int]time.Time, map[int]map[string]time.Time) (map[string][]byte, []byte, error){
 	constant.QueryFlightsReq:            GetFlightNumbers,
 	constant.QueryFlightDetailReq:       GetFlightDetails,
 	constant.AddFlightReq:               AddFlight,
@@ -26,36 +26,39 @@ func HandleDuplicateRequest(req map[string]interface{}, msgMap map[string][]byte
 	if err != nil {
 		return nil, err
 	}
-	msgId := fmt.Sprintf("%v", req[constant.MessageId])
+	msgId := fmt.Sprintf("%v%v", req[constant.Address], req[constant.MessageId])
 	if _, ok := msgMap[msgId]; !ok {
 		return nil, nil
 	}
-
 	return msgMap[msgId], nil
 }
 
-func HandleIncomingRequest(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, error) {
+func RegisterResponses(req map[string]interface{}, resp []byte, msgMap map[string][]byte) {
+	key := fmt.Sprintf("%v%v", req[constant.Address], req[constant.MessageId])
+	msgMap[key] = resp
+}
+func HandleIncomingRequest(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, []byte, error) {
 	fmt.Printf("Processing incoming request: %v\n", req)
 	if _, ok := req[constant.MsgType]; !ok {
-		return nil, errors.New("request does not have requestType field")
+		return nil, nil, errors.New("request does not have requestType field")
 	}
 	requestType, ok := req[constant.MsgType].(int)
 	if !ok {
-		return nil, errors.New("request field requestType not of type int")
+		return nil, nil, errors.New("request field requestType not of type int")
 	}
 
 	if _, exist := serviceMap[requestType]; !exist {
-		return nil, errors.New(fmt.Sprintf("request type %v not supported", requestType))
+		return nil, nil, errors.New(fmt.Sprintf("request type %v not supported", requestType))
 	}
 	err := utils.Validators[requestType](req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	responses, err := serviceMap[requestType](req, db, reservationMap, addressToFlightMap, flightToAddressMap)
+	responses, ack, err := serviceMap[requestType](req, db, reservationMap, addressToFlightMap, flightToAddressMap)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return responses, nil
+	return responses, ack, nil
 }
 
 func HandleError(err error) []byte {

@@ -36,6 +36,9 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 		buf := make([]byte, 1024)
 		n, addr, err := udpServer.ReadFrom(buf)
 		if err != nil {
+			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+				continue
+			}
 			fmt.Println(err)
 			continue
 		}

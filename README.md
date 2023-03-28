@@ -3,7 +3,7 @@ Combined golang repository for server, client and common marshal/unmarshal inter
 
 Build binary
 ```
-make build
+make buildClient
 ```
 or
 ```
@@ -20,3 +20,70 @@ Running client (Assuming server is already up)
 ```
 ./client --host=localhost --port=3222
 ```
+
+### Server Usage
+
+#### Set up database
+
+up test database that will be used by the server
+```
+make database
+```
+
+down test database
+```
+make databaseDown
+```
+#### Running directly from DistributedSystem Directory, using default address localhost:2222
+
+Running server with at least once delivery, without timeout simulation
+```
+make serverAloNoTimeOut
+```
+
+Running server with at least once delivery, with timeout simulation
+```
+make serverAloTimeOut
+```
+
+Running server with at most once delivery, without timeout simulation
+```
+make serverAmoNoTimeOut
+```
+
+Running server with at most once delivery, without timeout simulation
+```
+make serverAmoNoTimeOut
+```
+
+#### Build Binary
+
+Build using makefile
+```
+make buildServer
+```
+Running server
+#### Flags
+mode -> integer 0 or 1, 0 implies server runs with at least once delivery, 1 implies server runs with at most once delivery, when no flag is set, default to 0
+
+timeout ->boolean true or false, true implies server runs with timeout simulation, false implies server runs without timeout simulation, when no flag is set, defaults to false
+
+host -> string, host address the server will listen to, default localhost
+
+port -> string, port number that the server will listen to, default 2222
+
+#### Without flags
+```
+./server
+```
+
+#### With flags
+Example:
+
+run server in at most once delivery mode, no timeout simulation, host address is localhost, listening on port 2222
+```
+./server -mode=1 -timeout=false -host=localhost -port=2000
+```
+
+
+

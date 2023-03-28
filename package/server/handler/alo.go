@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-func HandleUDPRequestAtLeastOnce(db *sql.DB, timeout bool) {
-	// Listen for incoming packets on port 8080
-
-	udpServer, err := net.ListenPacket("udp", "localhost:2222")
+func HandleUDPRequestAtLeastOnce(db *sql.DB, timeout bool, host string, port string) {
+	addr := host + ":" + port
+	udpServer, err := net.ListenPacket("udp", addr)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("server listening on address: %v\n", addr)
 	defer udpServer.Close()
 	reservationMap := map[string]map[int]int{}
 	addressToFlightMap := map[string]map[int]time.Time{}

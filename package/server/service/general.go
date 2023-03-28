@@ -39,13 +39,12 @@ func RegisterResponses(req map[string]interface{}, resp []byte, msgMap map[strin
 	msgMap[key] = resp
 }
 
-func SimulateRandomTimeOut(timeout bool) bool {
+func SimulateRandomTimeOut(timeout bool, timeoutPercentage int) bool {
 	if timeout == false {
 		return false
 	}
-	// set threshold to 7 to allow for a 20 percent chance of timeout
-	timeoutThreshold := 7
-	currentThreshold := rand.Intn(10)
+	timeoutThreshold := 99 - timeoutPercentage
+	currentThreshold := rand.Intn(100)
 	if currentThreshold > timeoutThreshold {
 		return true
 	}

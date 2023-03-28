@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func HandleUDPRequestAtMostOnce(db *sql.DB, timeout bool, host string, port string) {
+func HandleUDPRequestAtMostOnce(db *sql.DB, timeout bool, host string, port string, timeoutPercentage int) {
 	// Listen for incoming packets on port 8080
 	storedResponses := map[string][]byte{}
 	addr := host + ":" + port
@@ -46,7 +46,7 @@ func HandleUDPRequestAtMostOnce(db *sql.DB, timeout bool, host string, port stri
 		}
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
-		if service.SimulateRandomTimeOut(timeout) {
+		if service.SimulateRandomTimeOut(timeout, timeoutPercentage) {
 			fmt.Println("simulate server timeout, no action will be performed")
 			continue
 		}

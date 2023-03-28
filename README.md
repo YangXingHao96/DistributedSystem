@@ -72,6 +72,8 @@ host -> string, host address the server will listen to, default localhost
 
 port -> string, port number that the server will listen to, default 2222
 
+timeout% -> int, percentage that a server will simulate a timeout, default 20
+
 #### Without flags
 ```
 ./server
@@ -80,9 +82,9 @@ port -> string, port number that the server will listen to, default 2222
 #### With flags
 Example:
 
-run server in at most once delivery mode, no timeout simulation, host address is localhost, listening on port 2222
+run server in at most once delivery mode, timeout simulation, host address is localhost, listening on port 2222, 80 percent chance of timeout
 ```
-./server -mode=1 -timeout=false -host=localhost -port=2000
+./server -mode=1 -timeout=true -host=localhost -port=2000 -timeout%=80
 ```
 
 

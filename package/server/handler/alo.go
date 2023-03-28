@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func HandleUDPRequestAtLeastOnce(db *sql.DB, timeout bool, host string, port string) {
+func HandleUDPRequestAtLeastOnce(db *sql.DB, timeout bool, host string, port string, timeoutPercentage int) {
 	addr := host + ":" + port
 	udpServer, err := net.ListenPacket("udp", addr)
 	if err != nil {
@@ -46,7 +46,7 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB, timeout bool, host string, port str
 		}
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
-		if service.SimulateRandomTimeOut(timeout) {
+		if service.SimulateRandomTimeOut(timeout, timeoutPercentage) {
 			fmt.Println("simulate server timeout, no action will be performed")
 			continue
 		}

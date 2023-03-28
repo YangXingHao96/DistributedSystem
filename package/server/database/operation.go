@@ -65,6 +65,9 @@ func MakeReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	if flightDetail.FlightNo == 0 {
+		return 0, errors.New("cannot reserve seats for non existent flight")
+	}
 	if seatCnt > flightDetail.SeatAvailability {
 		return 0, errors.New("cannot reserve seats more than available seats")
 	}
@@ -87,6 +90,9 @@ func CancelReservation(db *sql.DB, flightNo, seatCnt int) (int, error) {
 	flightDetails, err := GetFlightDetail(db, flightNo)
 	if err != nil {
 		return 0, err
+	}
+	if flightDetails.FlightNo == 0 {
+		return 0, errors.New("cannot cancel reservation for non existent flight")
 	}
 	if flightDetails.CurrentSeats < seatCnt {
 		return 0, errors.New("current seats reserved are less than number of seats to be cancelled")

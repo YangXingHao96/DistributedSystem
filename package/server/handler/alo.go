@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func HandleUDPRequestAtLeastOnce(db *sql.DB) {
+func HandleUDPRequestAtLeastOnce(db *sql.DB, timeout bool) {
 	// Listen for incoming packets on port 8080
 
 	udpServer, err := net.ListenPacket("udp", "localhost:2222")
@@ -33,6 +33,7 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 				fmt.Printf("An error has occured: %v\n", err)
 			}
 		}
+
 		udpServer.SetReadDeadline(time.Now().Add(1 * time.Second))
 		buf := make([]byte, 1024)
 		n, addr, err := udpServer.ReadFrom(buf)
@@ -45,6 +46,11 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 		}
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
+		if service.SimulateRandomTimeOut(timeout) {
+			fmt.Println("simulate server timeout, no action will be performed")
+			continue
+		}
+
 		request := common.Deserialize(buf[:n])
 		request[constant.Address] = addr.String()
 		stringAddressMap[addr.String()] = addr
@@ -55,7 +61,6 @@ func HandleUDPRequestAtLeastOnce(db *sql.DB) {
 			if _, err := udpServer.WriteTo(errResp, addr); err != nil {
 				fmt.Printf("An error has occured: %v\n", err)
 			}
-
 		} else {
 			for key, value := range responses {
 				if _, err := udpServer.WriteTo(value, stringAddressMap[key]); err != nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/YangXingHao96/DistributedSystem/package/common"
 	"github.com/YangXingHao96/DistributedSystem/package/common/constant"
 	"github.com/YangXingHao96/DistributedSystem/package/server/utils"
+	"math/rand"
 	"time"
 )
 
@@ -36,6 +37,19 @@ func HandleDuplicateRequest(req map[string]interface{}, msgMap map[string][]byte
 func RegisterResponses(req map[string]interface{}, resp []byte, msgMap map[string][]byte) {
 	key := fmt.Sprintf("%v%v", req[constant.Address], req[constant.MessageId])
 	msgMap[key] = resp
+}
+
+func SimulateRandomTimeOut(timeout bool) bool {
+	if timeout == false {
+		return false
+	}
+	// set threshold to 7 to allow for a 20 percent chance of timeout
+	timeoutThreshold := 7
+	currentThreshold := rand.Intn(10)
+	if currentThreshold > timeoutThreshold {
+		return true
+	}
+	return false
 }
 func HandleIncomingRequest(req map[string]interface{}, db *sql.DB, reservationMap map[string]map[int]int, addressToFlightMap map[string]map[int]time.Time, flightToAddressMap map[int]map[string]time.Time) (map[string][]byte, []byte, error) {
 	fmt.Printf("Processing incoming request: %v\n", req)

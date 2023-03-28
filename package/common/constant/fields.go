@@ -21,8 +21,3 @@ const (
 	MonitorIntervalSec = "monitorIntervalSec"
 	Address            = "addr"
 )
-
-const (
-	AddReservation    = "addReservation"
-	RemoveReservation = "removeReservation"
-)

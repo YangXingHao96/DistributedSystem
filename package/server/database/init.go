@@ -41,7 +41,7 @@ func Init() *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-	flightSlice, err := prepTableData(wd + "/init_flight.csv")
+	flightSlice, err := prepTableData(wd + "/setup/init_flight.csv")
 	if err != nil {
 		panic(err)
 	}

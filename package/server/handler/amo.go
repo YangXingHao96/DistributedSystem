@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func HandleUDPRequestAtMostOnce(db *sql.DB) {
+func HandleUDPRequestAtMostOnce(db *sql.DB, timeout bool) {
 	// Listen for incoming packets on port 8080
 	storedResponses := map[string][]byte{}
 	udpServer, err := net.ListenPacket("udp", "localhost:2222")
@@ -44,9 +44,15 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 		}
 		fmt.Printf("Received %d bytes from %s: %v\n", n, addr.String(), buf[:n])
 
+		if service.SimulateRandomTimeOut(timeout) {
+			fmt.Println("simulate server timeout, no action will be performed")
+			continue
+		}
+
 		request := common.Deserialize(buf[:n])
 		request[constant.Address] = addr.String()
 		stringAddressMap[addr.String()] = addr
+
 		resp, err := service.HandleDuplicateRequest(request, storedResponses)
 		if resp != nil {
 			fmt.Println("handling repeated request")
@@ -55,7 +61,7 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 			}
 			continue
 		}
-		// We will not store the mapping of error response to
+		// We will not store the mapping of error response to specific messages send
 		if err != nil {
 			resp = service.HandleError(err)
 			fmt.Printf("An error has occured: %v\n", err)
@@ -64,6 +70,7 @@ func HandleUDPRequestAtMostOnce(db *sql.DB) {
 			}
 			continue
 		}
+
 		responses, resp, err = service.HandleIncomingRequest(request, db, reservationMap, addressToFlightMap, flightToAddressMap)
 		if err != nil {
 			fmt.Printf("An error has occured: %v\n", err)

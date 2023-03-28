@@ -38,22 +38,22 @@ make databaseDown
 
 Running server with at least once delivery, without timeout simulation
 ```
-make serverAloNoTimeOut
+make serverAloNoTimeout
 ```
 
 Running server with at least once delivery, with timeout simulation
 ```
-make serverAloTimeOut
+make serverAloTimeout
 ```
 
 Running server with at most once delivery, without timeout simulation
 ```
-make serverAmoNoTimeOut
+make serverAmoNoTimeout
 ```
 
 Running server with at most once delivery, without timeout simulation
 ```
-make serverAmoNoTimeOut
+make serverAmoNoTimeout
 ```
 
 #### Build Binary

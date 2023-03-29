@@ -87,5 +87,9 @@ run server in at most once delivery mode, timeout simulation, host address is lo
 ./server -mode=1 -timeout=true -host=localhost -port=2000 -timeout%=80
 ```
 
+### Running the client and server
 
+order of creating: up database -> up server -> up clients
+
+order of closing: close clients -> close server -> down database
 

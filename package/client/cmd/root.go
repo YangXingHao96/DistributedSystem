@@ -87,6 +87,7 @@ func start(cmd *cobra.Command, args []string) {
 		prompt := promptui.Select{
 			Label: "Select an action",
 			Items: cmds,
+			Size:  len(cmds),
 		}
 
 		_, c, err := prompt.Run()

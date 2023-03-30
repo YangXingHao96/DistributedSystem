@@ -1,4 +1,9 @@
-Combined golang repository for server, client and common marshal/unmarshal interfaces
+# Flight Management System
+
+A flight management system with a client server architecture, communicating via UDP.
+
+This repository serves as a combined golang repository for server, client and common marshal/unmarshal interfaces.
+
 ### Client Usage
 
 Build binary
@@ -25,7 +30,7 @@ Running client (Assuming server is already up)
 
 #### Set up database
 
-up test database that will be used by the server
+Set up test database that will be used by the server. Note: docker-compose is a prerequisite here.
 ```
 make database
 ```
@@ -86,6 +91,3 @@ run server in at most once delivery mode, timeout simulation, host address is lo
 ```
 ./server -mode=1 -timeout=true -host=localhost -port=2000 -timeout%=80
 ```
-
-
-

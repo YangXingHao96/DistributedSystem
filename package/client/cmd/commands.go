@@ -143,9 +143,9 @@ func promptAddFlight() ([]byte, error) {
 		return nil, err
 	}
 
-	layout := "01/02/2006 3:04:05 PM"
+	layout := "02/01/2006 03:04:05 PM"
 	prompt = promptui.Prompt{
-		Label: "Flight Departure Time in the format \"DD/MM/YYYY hr:min:second AM/PM\", Eg: 01/02/2006 3:04:05 PM",
+		Label: "Flight Departure Time in the format \"DD/MM/YYYY hr:min:second AM/PM\", Eg: 01/02/2006 03:04:05 PM",
 		Validate: func(input string) error {
 			t, err := time.Parse(layout, input)
 			if err != nil {

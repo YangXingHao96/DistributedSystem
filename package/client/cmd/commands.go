@@ -186,9 +186,12 @@ func promptAddFlight() ([]byte, error) {
 	prompt = promptui.Prompt{
 		Label: "Total seat count",
 		Validate: func(input string) error {
-			_, err := strconv.ParseInt(input, 10, 32)
+			cnt, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
 				return errors.New("invalid number")
+			}
+			if cnt <= 0 {
+				return errors.New("total seat count cannot be less than or equal 0")
 			}
 			return nil
 		},
@@ -205,9 +208,12 @@ func promptAddFlight() ([]byte, error) {
 	prompt = promptui.Prompt{
 		Label: "Current number of seats booked",
 		Validate: func(input string) error {
-			_, err := strconv.ParseInt(input, 10, 32)
+			cnt, err := strconv.ParseInt(input, 10, 32)
 			if err != nil {
 				return errors.New("invalid number")
+			}
+			if cnt < 0 {
+				errors.New("current number of seats booked cannot be less than 0")
 			}
 			return nil
 		},

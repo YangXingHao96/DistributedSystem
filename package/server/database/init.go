@@ -61,7 +61,7 @@ func isTableExistsError(err error) bool {
 }
 
 func initTables(db *sql.DB, flightSlice []*model.FlightInformation) error {
-	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    flight_time INTEGER,\n  air_fare FLOAT,\n    max_seat_cnt INTEGER,\n    current_seat_cnt INTEGER)"
+	createTable := "CREATE TABLE Flight(flight_number INTEGER PRIMARY KEY,\n  source VARCHAR(256),\n    destination VARCHAR(256),\n    flight_time BIGINT,\n  air_fare FLOAT,\n    max_seat_cnt INTEGER,\n    current_seat_cnt INTEGER)"
 	fmt.Printf("Executing creations: %s\n", createTable)
 	_, err := db.Exec(createTable)
 	if err != nil {
